@@ -1,53 +1,86 @@
-/* style.css */
-body {
-  font-family: Inter, Poppins, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial;
+/* ------------------------------------------
+   ULTRA PREMIUM FLOATING CART (BLUE ELEGANT)
+------------------------------------------- */
+
+.fc-ultra {
+  width: 75px;
+  height: 75px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  /* Blue Elegant Glow */
+  box-shadow:
+    0 0 25px rgba(0, 125, 255, 0.7),
+    0 0 35px rgba(0, 195, 255, 0.5),
+    inset 0 0 20px rgba(255, 255, 255, 0.25);
+
+  animation: floatUltra 4s cubic-bezier(.42,0,.58,1) infinite;
+
+  transition: transform .3s ease, box-shadow .3s ease;
 }
 
-/* small animation for add button */
-@keyframes addPulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.08);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-.animate-add {
-  animation: addPulse 0.35s ease;
+.fc-ultra:hover {
+  transform: rotateX(15deg) rotateY(15deg) scale(1.15);
+  box-shadow:
+    0 0 40px rgba(0, 155, 255, 1),
+    0 0 60px rgba(0, 220, 255, 1),
+    inset 0 0 30px rgba(255, 255, 255, 0.5);
 }
 
-/* cart modal visible transitions (handled by JS toggling classes) */
-#cart-modal > div {
-  transition: transform 0.18s ease, opacity 0.18s ease;
+.fc-ultra-icon {
+  font-size: 34px;
+  color: white;
+  filter: drop-shadow(0 0 10px rgba(0, 180, 255, 0.9));
 }
 
-/* utility: pointer cursor for clickable cards */
-.cursor-pointer {
-  cursor: pointer;
+/* Badge tetap merah premium agar kontras */
+.fc-ultra-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: linear-gradient(135deg, #ff1b1b, #ff004e);
+  padding: 5px 10px;
+  font-size: 13px;
+  border-radius: 50px;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 0 15px rgba(255, 0, 70, 0.7);
 }
-/* style.css tambahan */
-body {
-  font-family: Inter, Poppins, system-ui, -apple-system, "Segoe UI", Roboto;
+
+/* RING GRADASI BIRU ELEGAN */
+.fc-ultra-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  top: 0;
+  left: 0;
+  animation: holoBlue 2.5s linear infinite;
+  border: 4px solid transparent;
+
+  /* Blue Elegant Gradient */
+  border-top-color: #1ea8ff;
+  border-right-color: #006aff;
+  border-bottom-color: #00eaff;
+  border-left-color: #0084ff;
 }
-.animate-add {
-  animation: addPulse 0.35s ease;
+
+/* Floating Animation */
+@keyframes floatUltra {
+  0% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+  100% { transform: translateY(0) rotate(0); }
 }
-@keyframes addPulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.06);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-#product-modal > div,
-#cart-modal > div {
-  transition: transform 0.15s ease, opacity 0.15s ease;
+
+/* Hologram Rotation (Blue Theme) */
+@keyframes holoBlue {
+  0%   { transform: rotate(0deg);   filter: blur(2.5px); }
+  100% { transform: rotate(360deg); filter: blur(2.5px); }
 }
