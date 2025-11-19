@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MZ Collection — Konfirmasi Pemesanan</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <header class="bg-blue-900 text-white sticky top-0 z-50 shadow">
+      <div
+        class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <i class="ph ph-shopping-bag text-3xl"></i>
+          <a href="index.html" class="font-bold text-2xl tracking-wide"
+            >MZ COLLECTION</a
+          >
+        </div>
+
+        <nav class="hidden md:flex gap-6 items-center">
+          <a href="index.html" class="hover:text-blue-300">Beranda</a>
+          <a href="katalog.html" class="hover:text-blue-300">Katalog</a>
+          <a href="kontak.html" class="hover:text-blue-300">Kontak</a>
+          <a href="pemesanan.html" class="text-blue-300 font-semibold"
+            >Pemesanan</a
+          >
+
+          <button onclick="openCartModal()" class="relative">
+            <i class="ph ph-shopping-cart text-2xl"></i>
+            <span
+              id="cart-count"
+              class="absolute -top-2 -right-3 bg-red-500 text-white rounded-full text-xs px-2"
+              >0</span
+            >
+          </button>
+        </nav>
+
+        <button class="md:hidden" onclick="toggleMenu()">
+          <i id="menu-icon" class="ph ph-list text-3xl"></i>
+        </button>
+      </div>
+
+      <nav id="mobile-menu" class="hidden md:hidden bg-blue-800 pb-4">
+        <a
+          href="index.html"
+          class="block py-2 text-center text-white hover:text-blue-300"
+          >Beranda</a
+        >
+        <a
+          href="katalog.html"
+          class="block py-2 text-center text-white hover:text-blue-300"
+          >Katalog</a
+        >
+        <a
+          href="kontak.html"
+          class="block py-2 text-center text-white hover:text-blue-300"
+          >Kontak</a
+        >
+        <a
+          href="pemesanan.html"
+          class="block py-2 text-center text-blue-300 font-semibold"
+          >Pemesanan</a
+        >
+      </nav>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-5 py-12">
+      <h1 class="text-3xl font-bold mb-6">Konfirmasi Pesanan</h1>
+
+      <div id="order-summary" class="bg-white p-6 rounded-xl shadow mb-6"></div>
+
+      <form
+        id="checkout-form"
+        onsubmit="completeOrder(event)"
+        class="bg-white p-6 rounded-xl shadow"
+      >
+        <h2 class="font-semibold mb-4">Data Pemesan</h2>
+
+        <label class="block mb-4">
+          <span class="font-medium">Nama Lengkap</span>
+          <input
+            id="cust-name"
+            required
+            class="w-full p-3 border rounded mt-1"
+          />
+        </label>
+
+        <label class="block mb-4">
+          <span class="font-medium">Nomor WhatsApp</span>
+          <input
+            id="cust-wa"
+            required
+            class="w-full p-3 border rounded mt-1"
+            placeholder="08xx..."
+          />
+        </label>
+
+        <label class="block mb-4">
+          <span class="font-medium">Alamat Lengkap</span>
+          <textarea
+            id="cust-address"
+            required
+            class="w-full p-3 border rounded mt-1"
+            rows="3"
+          ></textarea>
+        </label>
+
+        <div class="flex gap-3 mt-4">
+          <button
+            type="submit"
+            class="bg-green-600 px-5 py-3 text-white rounded hover:bg-green-700"
+          >
+            Kirim ke WhatsApp
+          </button>
+          <a
+            href="katalog.html"
+            class="px-5 py-3 border rounded hover:bg-gray-100"
+            >Kembali ke Katalog</a
+          >
+        </div>
+      </form>
+    </main>
+
+    <div
+      id="cart-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-full max-w-2xl rounded-xl overflow-hidden shadow-lg transform transition-all scale-95 m-4"
+      >
+        <div class="flex items-center justify-between p-4 border-b">
+          <h3 class="font-bold text-lg">Keranjang Anda</h3>
+          <button
+            onclick="closeCartModal()"
+            class="text-gray-600 hover:text-gray-900"
+          >
+            <i class="ph ph-x text-2xl"></i>
+          </button>
+        </div>
+        <div id="cart-modal-body" class="p-4 max-h-80 overflow-auto"></div>
+        <div class="p-4 border-t flex items-center justify-between gap-4">
+          <div>
+            <div class="text-sm text-gray-500">Total</div>
+            <div id="cart-total" class="font-bold text-lg">Rp 0</div>
+          </div>
+          <div class="flex gap-3">
+            <button
+              onclick="clearCart()"
+              class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Kosongkan
+            </button>
+            <button
+              onclick="checkoutFromModal()"
+              class="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
+            >
+              Checkout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/script.js"></script>
+  </body>
+</html>

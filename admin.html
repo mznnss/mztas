@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MZ Collection — Admin Stok</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <header class="bg-blue-900 text-white p-4 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <i class="ph ph-database text-2xl"></i>
+          <span class="font-bold text-xl">MZ COLLECTION — Admin</span>
+        </div>
+        <div class="flex gap-3">
+          <a href="index.html" class="px-3 py-2 bg-white text-blue-900 rounded"
+            >Lihat Website</a
+          >
+          <button
+            onclick="adminResetDB()"
+            class="px-3 py-2 bg-red-500 text-white rounded"
+          >
+            Reset DB
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-6">
+      <h1 class="text-2xl font-bold mb-4">Kelola Produk & Stok</h1>
+
+      <div id="admin-body"></div>
+    </main>
+
+    <script src="js/db.js"></script>
+    <script src="js/script.js"></script>
+  </body>
+</html>
