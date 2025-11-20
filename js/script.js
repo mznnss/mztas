@@ -1,20 +1,16 @@
-/* js/script.js — FINAL FIX (ORDER SUMMARY & CART SYNC) */
+/* js/script.js — FINAL COMPLETE CODE */
 
-/* ================= 1. INIT & STORAGE ================= */
-const STORAGE_DB_KEY = "dbProduk_v2"; 
+/* 1. INIT STORAGE & DATA */
+const STORAGE_DB_KEY = "dbProduk_vFinal"; // Reset key
 const STORAGE_CART_KEY = "mz_cart";
+const STORAGE_REV_KEY = "mz_reviews";
 
-// Load DB
 let db = typeof produk !== "undefined" ? produk : [];
-// Cek storage jika ada (opsional)
-if (!localStorage.getItem(STORAGE_DB_KEY)) {
-    localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(db));
-}
+// Force reset DB di localStorage
+localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(db));
 
-// Load Cart
 let cart = JSON.parse(localStorage.getItem(STORAGE_CART_KEY) || "[]");
 
-function saveDB() { localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(db)); }
 function saveCart() {
   localStorage.setItem(STORAGE_CART_KEY, JSON.stringify(cart));
   updateCartBadge();
@@ -23,315 +19,218 @@ function formatIDR(n) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
 }
 
-/* ================= 2. RENDER LOGIC (KATALOG & HOME) ================= */
-
-function renderProducts(filter = 'all') {
-    const container = document.getElementById("product-container");
-    if (!container) return; 
-
-    container.innerHTML = '';
-    const filteredData = filter === 'all' ? db : db.filter(p => p.kategori === filter);
-
-    if (filteredData.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:white;">Produk tidak ditemukan.</div>`;
-        return;
-    }
-    container.innerHTML = filteredData.map(p => createCardHTML(p)).join("");
-}
-
-function renderFeatured() {
-    const container = document.getElementById("featured-container");
-    if (!container) return; 
-
-    const featuredData = db.filter(p => p.favorit).slice(0, 4);
-    if (featuredData.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px;">Belum ada produk favorit.</div>`;
-        return;
-    }
-    container.innerHTML = featuredData.map(p => createCardHTML(p)).join("");
-}
-
+/* 2. RENDER PRODUCTS */
 function createCardHTML(p) {
-    const variasi = p.variasi || [];
-    if (variasi.length === 0) return ""; 
-
-    const lowestPrice = Math.min(...variasi.map(v => v.harga));
-    const isHabis = variasi.every(v => v.stok <= 0);
-    const badgeHabis = isHabis ? `<div style="position:absolute; top:10px; right:10px; background:red; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:bold; z-index:10; color:white;">HABIS</div>` : '';
+    const lowestPrice = Math.min(...p.variasi.map(v => v.harga));
+    const isHabis = p.variasi.every(v => v.stok <= 0);
+    const badgeHabis = isHabis ? `<div style="position:absolute; top:10px; right:10px; background:red; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:bold; color:white;">HABIS</div>` : '';
 
     let priceHtml = '';
     if (p.favorit) {
-        const discountPrice = lowestPrice * 0.8; 
-        priceHtml = `
-            <span class="price-original" style="text-decoration: line-through; color: #aaa; font-size: 0.9rem;">${formatIDR(lowestPrice)}</span>
-            <span class="discount-tag" style="background: #ff4757; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left:5px;">20% OFF</span>
-            <div class="price-final" style="color: var(--gold-accent); font-weight: bold; font-size: 1.2rem;">${formatIDR(discountPrice)}</div>
-        `;
+        const discount = lowestPrice * 0.8;
+        priceHtml = `<span style="text-decoration:line-through; color:#aaa; font-size:0.8rem;">${formatIDR(lowestPrice)}</span> 
+                     <span style="color:var(--gold-accent); font-weight:bold; font-size:1.1rem;">${formatIDR(discount)}</span>`;
     } else {
-        priceHtml = `<div class="price-final" style="color: var(--gold-accent); font-weight: bold; font-size: 1.2rem;">${formatIDR(lowestPrice)}</div>`;
+        priceHtml = `<span style="color:var(--gold-accent); font-weight:bold; font-size:1.1rem;">${formatIDR(lowestPrice)}</span>`;
     }
 
     return `
     <div class="product-card" onclick="openProductDetail(${p.id})">
         ${badgeHabis}
-        <img src="img/produk/${p.gambar}" class="product-image" alt="${p.nama}" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
-        <div class="product-category">${p.kategori || 'Koleksi'}</div>
+        <img src="img/produk/${p.gambar}" class="product-image" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
+        <div class="product-category">${p.kategori}</div>
         <h3 class="product-title">${p.nama}</h3>
         <div class="price-wrapper">${priceHtml}</div>
-        <button style="width:100%; margin-top:15px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:white; padding:8px; border-radius:10px; cursor:pointer; transition:0.3s;" 
-                onmouseover="this.style.background='#D4AF37'; this.style.color='black'" 
-                onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.color='white'">
-            ${isHabis ? 'Stok Habis' : 'Lihat Detail'}
-        </button>
-    </div>
-    `;
+        <button style="width:100%; margin-top:15px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:white; padding:8px; border-radius:10px; cursor:pointer;">Lihat Detail</button>
+    </div>`;
 }
 
-function filterProducts(category) {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if(btn.innerText === category || (category === 'all' && btn.innerText === 'Semua')) btn.classList.add('active');
-        if(category === 'Backpack' && btn.innerText === 'Backpack') btn.classList.add('active');
-        if(category === 'Slingbag' && btn.innerText === 'Slingbag') btn.classList.add('active');
-        if(category === 'Handbag' && btn.innerText === 'Handbag') btn.classList.add('active');
-        if(category === 'Travel' && btn.innerText === 'Travel') btn.classList.add('active');
-        if(category === 'Accessories' && btn.innerText === 'Aksesoris') btn.classList.add('active');
+function renderProducts(filter = 'all') {
+    const container = document.getElementById("product-container");
+    if (!container) return;
+    const data = filter === 'all' ? db : db.filter(p => p.kategori === filter);
+    container.innerHTML = data.length ? data.map(createCardHTML).join("") : `<p class="text-center col-span-full">Produk tidak ditemukan.</p>`;
+}
+
+function renderFeatured() {
+    const container = document.getElementById("featured-container");
+    if (!container) return;
+    const data = db.filter(p => p.favorit).slice(0, 4);
+    container.innerHTML = data.map(createCardHTML).join("");
+}
+
+function filterProducts(cat) {
+    document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('active');
+        if (b.innerText === cat || (cat === 'all' && b.innerText === 'Semua') || b.innerText === cat.replace('Accessories', 'Aksesoris')) b.classList.add('active');
     });
-    renderProducts(category);
+    renderProducts(cat);
 }
 
-/* ================= 3. ORDER SUMMARY LOGIC (FIXED) ================= */
-// Fungsi ini yang akan mengisi halaman pemesanan.html
-function renderOrderSummary() {
-    const container = document.getElementById("order-summary");
-    if (!container) return; // Jika tidak ada elemen ini (bukan di halaman pemesanan), stop.
-
-    if (cart.length === 0) {
-        container.innerHTML = `
-            <div class="text-center py-6">
-                <p class="text-gray-300 mb-4">Keranjang Anda kosong.</p>
-                <a href="katalog.html" class="text-yellow-500 font-bold hover:underline">Kembali ke Katalog</a>
-            </div>
-        `;
+/* 3. REVIEW SYSTEM (LOCALSTORAGE) */
+function getReviews() { return JSON.parse(localStorage.getItem(STORAGE_REV_KEY) || "[]"); }
+function renderReviews() {
+    const container = document.getElementById("review-list");
+    if (!container) return;
+    const reviews = getReviews();
+    if (reviews.length === 0) {
+        container.innerHTML = `<p class="text-gray-400 italic">Belum ada ulasan. Jadilah yang pertama!</p>`;
         return;
     }
-
-    // Generate List Produk
-    let htmlItems = cart.map(item => `
-        <div class="flex justify-between items-center border-b border-white/10 py-3">
-            <div class="flex items-center gap-3">
-                <img src="img/produk/${item.gambar}" class="w-12 h-12 object-cover rounded bg-gray-700" onerror="this.src='https://via.placeholder.com/50'">
-                <div>
-                    <div class="font-bold text-white text-sm">${item.nama}</div>
-                    <div class="text-xs text-gray-400">${item.ukuran}, ${item.warna} <span class="text-yellow-500 font-bold">x${item.qty}</span></div>
-                </div>
-            </div>
-            <div class="text-white font-bold text-sm">${formatIDR(item.harga * item.qty)}</div>
+    container.innerHTML = reviews.map(r => `
+        <div class="bg-white/5 p-4 rounded-xl border border-white/10 mb-3">
+            <div class="flex text-yellow-400 text-sm mb-1">${"★".repeat(r.rating)}</div>
+            <p class="text-gray-200 text-sm italic">"${r.text}"</p>
+            <div class="mt-2 font-bold text-xs text-white">— ${r.name}</div>
         </div>
     `).join("");
-
-    // Hitung Total
-    const total = cart.reduce((sum, item) => sum + (item.harga * item.qty), 0);
-
-    container.innerHTML = `
-        <div class="space-y-2 mb-4">
-            ${htmlItems}
-        </div>
-        <div class="flex justify-between items-center pt-3 border-t border-white/20">
-            <span class="text-lg font-bold text-gray-300">Total Tagihan</span>
-            <span class="text-xl font-bold text-yellow-500">${formatIDR(total)}</span>
-        </div>
-    `;
 }
+function sendReview(e) {
+    e.preventDefault();
+    const name = document.getElementById("ulasan-nama").value;
+    const text = document.getElementById("ulasan-text").value;
+    const rating = document.getElementById("ulasan-rating").value;
+    if (!name || !text) return alert("Lengkapi data ulasan.");
 
-// Fungsi Checkout / Kirim WA (Terhubung dengan Form di pemesanan.html)
-function completeOrder(e) {
-    e.preventDefault(); // Mencegah reload halaman
-
-    if (cart.length === 0) return alert("Keranjang kosong! Silakan belanja dulu.");
-
-    const name = document.getElementById("cust-name").value;
-    const wa = document.getElementById("cust-wa").value;
-    const address = document.getElementById("cust-address").value;
-
-    if(!name || !wa || !address) return alert("Mohon lengkapi semua data.");
-
-    const waNumber = "628976272428"; // Ganti nomor WA admin disini
-    let message = `Halo Admin MZ Collection,%0A%0ASaya ingin memesan produk berikut:%0A`;
+    const reviews = getReviews();
+    reviews.unshift({ name, text, rating, date: new Date().toLocaleDateString() });
+    localStorage.setItem(STORAGE_REV_KEY, JSON.stringify(reviews));
     
-    let total = 0;
-    cart.forEach(item => {
-        const subtotal = item.harga * item.qty;
-        total += subtotal;
-        message += `- ${item.nama} (${item.ukuran}, ${item.warna}) @${item.qty}pcs = ${formatIDR(subtotal)}%0A`;
-    });
-
-    message += `%0A*Total: ${formatIDR(total)}*%0A`;
-    message += `%0A--------------------------%0A`;
-    message += `Nama: ${name}%0A`;
-    message += `No WA: ${wa}%0A`;
-    message += `Alamat: ${address}%0A`;
-    message += `%0AMohon info ongkos kirimnya. Terima kasih!`;
-
-    window.open(`https://wa.me/${waNumber}?text=${message}`, "_blank");
-    
-    // Opsional: Kosongkan keranjang setelah pesan
-    // cart = []; saveCart(); 
-    // window.location.href = "index.html";
+    document.getElementById("form-review").reset();
+    renderReviews();
+    alert("Ulasan berhasil dikirim!");
 }
 
-
-/* ================= 4. CART & MODAL LOGIC ================= */
-
-function updateCartBadge() {
-    const totalQty = cart.reduce((s, it) => s + it.qty, 0);
-    document.querySelectorAll(".fc-ultra-badge").forEach(el => {
-        el.textContent = totalQty;
-        el.style.transform = "scale(1.5)";
-        setTimeout(() => el.style.transform = "scale(1)", 200);
-    });
-}
-
-function toggleCart() { openCartModal(); }
-
-// Modal Produk
+/* 4. CART & MODAL & CHECKOUT */
 let currentProduct = null;
 function openProductDetail(id) {
-    currentProduct = db.find((d) => d.id === id);
+    currentProduct = db.find(p => p.id === id);
     if (!currentProduct) return;
-
     const modal = document.getElementById("product-modal");
     const body = document.getElementById("product-detail-body");
-    if (!modal || !body) return;
-
-    const ukuranList = [...new Set(currentProduct.variasi.map((v) => v.ukuran))];
+    
+    const ukuranList = [...new Set(currentProduct.variasi.map(v => v.ukuran))];
     let basePrice = Math.min(...currentProduct.variasi.map(v => v.harga));
-    if(currentProduct.favorit) basePrice = basePrice * 0.8;
+    if (currentProduct.favorit) basePrice *= 0.8;
 
     body.innerHTML = `
-    <div style="display:flex; flex-wrap:wrap; gap:20px; color: #333;">
-      <div style="flex:1; min-width:250px;">
-        <img src="img/produk/${currentProduct.gambar}" style="width:100%; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
-      </div>
-      <div style="flex:1; min-width:250px;">
-        <h2 style="font-size:1.5rem; font-weight:bold; margin-bottom:5px;">${currentProduct.nama}</h2>
-        <div style="color:#004d7a; font-weight:bold; font-size:1.2rem; margin-bottom:15px;">
-            ${formatIDR(basePrice)} ${currentProduct.favorit ? '<span style="font-size:0.8rem; color:red; background:#ffcccc; padding:2px 5px; border-radius:4px;">Promo</span>' : ''}
+        <div class="flex flex-col md:flex-row gap-5 text-gray-800">
+            <img src="img/produk/${currentProduct.gambar}" class="w-full md:w-1/2 rounded-lg object-cover shadow-md">
+            <div class="flex-1">
+                <h2 class="text-xl font-bold mb-1">${currentProduct.nama}</h2>
+                <div class="text-blue-700 font-bold text-lg mb-3">${formatIDR(basePrice)}</div>
+                
+                <label class="block text-sm font-bold mb-1">Ukuran</label>
+                <select id="modal-ukuran" class="w-full border p-2 rounded mb-3" onchange="updateWarna()">
+                    <option value="">-- Pilih --</option>
+                    ${ukuranList.map(u => `<option value="${u}">${u}</option>`).join("")}
+                </select>
+
+                <label class="block text-sm font-bold mb-1">Warna</label>
+                <select id="modal-warna" class="w-full border p-2 rounded mb-4" disabled><option>Pilih ukuran dulu</option></select>
+
+                <label class="block text-sm font-bold mb-1">Jumlah</label>
+                <input id="modal-qty" type="number" value="1" min="1" class="w-20 border p-2 rounded mb-4 text-center">
+
+                <button onclick="addToCart()" class="w-full bg-blue-700 text-white py-3 rounded-lg font-bold hover:bg-blue-800 transition">TAMBAH KERANJANG</button>
+            </div>
         </div>
-        <div style="margin-bottom:10px;">
-            <label style="display:block; font-size:0.9rem; font-weight:600; margin-bottom:5px;">Pilih Ukuran:</label>
-            <select id="modal-ukuran" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;" onchange="onModalUkuranChange()">
-            <option value="">-- Pilih --</option>
-            ${ukuranList.map((u) => `<option value="${u}">${u}</option>`).join("")}
-            </select>
-        </div>
-        <div style="margin-bottom:15px;">
-            <label style="display:block; font-size:0.9rem; font-weight:600; margin-bottom:5px;">Pilih Warna:</label>
-            <select id="modal-warna" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;" disabled>
-            <option value="">Pilih ukuran dulu</option>
-            </select>
-        </div>
-        <div style="display:flex; gap:10px; align-items:center; margin-bottom:20px;">
-            <button onclick="changeModalQty(-1)" style="padding:5px 10px; border:1px solid #ccc; background:#eee;">-</button>
-            <input id="modal-qty" type="number" value="1" min="1" style="width:50px; text-align:center; padding:5px; border:1px solid #ccc;">
-            <button onclick="changeModalQty(1)" style="padding:5px 10px; border:1px solid #ccc; background:#eee;">+</button>
-        </div>
-        <button onclick="modalAddToCart()" style="width:100%; background:#004d7a; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">+ Keranjang</button>
-      </div>
-    </div>`;
+    `;
     modal.classList.remove("hidden");
 }
 
-function closeProductModal() { document.getElementById("product-modal").classList.add("hidden"); }
-
-function onModalUkuranChange() {
+function updateWarna() {
     const ukuran = document.getElementById("modal-ukuran").value;
-    const warnaSelect = document.getElementById("modal-warna");
-    if (!ukuran) {
-        warnaSelect.disabled = true;
-        warnaSelect.innerHTML = `<option value="">Pilih ukuran dulu</option>`;
-        return;
-    }
-    const variations = currentProduct.variasi.filter((v) => v.ukuran === ukuran);
-    warnaSelect.disabled = false;
-    warnaSelect.innerHTML = `<option value="">-- Pilih Warna --</option>` +
-        variations.map((v) => `<option value="${v.warna}" ${v.stok<=0?'disabled':''}>${v.warna} ${v.stok<=0?'(Habis)':''}</option>`).join("");
+    const sel = document.getElementById("modal-warna");
+    if (!ukuran) { sel.disabled=true; return; }
+    const vars = currentProduct.variasi.filter(v => v.ukuran === ukuran);
+    sel.disabled = false;
+    sel.innerHTML = `<option value="">-- Pilih --</option>` + vars.map(v => `<option value="${v.warna}" ${v.stok<=0?'disabled':''}>${v.warna} ${v.stok<=0?'(Habis)':''}</option>`).join("");
 }
 
-function changeModalQty(delta) {
-    const qEl = document.getElementById("modal-qty");
-    let v = parseInt(qEl.value || "1") + delta;
-    if (v < 1) v = 1;
-    qEl.value = v;
-}
-
-function modalAddToCart() {
+function addToCart() {
     const ukuran = document.getElementById("modal-ukuran").value;
     const warna = document.getElementById("modal-warna").value;
     const qty = parseInt(document.getElementById("modal-qty").value);
-    if (!ukuran || !warna) return alert("Mohon pilih ukuran dan warna.");
+    if (!ukuran || !warna) return alert("Pilih variasi lengkap.");
     
-    const varObj = currentProduct.variasi.find(v => v.ukuran === ukuran && v.warna === warna);
-    let finalPrice = varObj.harga;
-    if (currentProduct.favorit) finalPrice = finalPrice * 0.8;
+    const v = currentProduct.variasi.find(i => i.ukuran === ukuran && i.warna === warna);
+    let price = v.harga; 
+    if(currentProduct.favorit) price *= 0.8;
 
     const exist = cart.find(c => c.id === currentProduct.id && c.ukuran === ukuran && c.warna === warna);
     if (exist) exist.qty += qty;
-    else cart.push({ id: currentProduct.id, nama: currentProduct.nama, gambar: currentProduct.gambar, ukuran, warna, harga: finalPrice, qty });
-
+    else cart.push({ id: currentProduct.id, nama: currentProduct.nama, gambar: currentProduct.gambar, ukuran, warna, harga: price, qty });
+    
     saveCart();
+    document.getElementById("product-modal").classList.add("hidden");
     alert("Berhasil masuk keranjang!");
-    closeProductModal();
 }
 
-function openCartModal() {
+function toggleCart() {
     const modal = document.getElementById("cart-modal");
     const body = document.getElementById("cart-modal-body");
-    if(!modal) return;
     modal.classList.remove("hidden");
-
-    if (cart.length === 0) {
-        body.innerHTML = `<p style="text-align:center; padding:20px; color:#666;">Keranjang Kosong</p>`;
+    if (!cart.length) {
+        body.innerHTML = `<p class="text-center py-5 text-gray-500">Keranjang kosong</p>`;
         document.getElementById("cart-total-display").innerText = formatIDR(0);
         return;
     }
-    body.innerHTML = cart.map((item, idx) => `
-        <div style="display:flex; gap:10px; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px; color:#333;">
-            <img src="img/produk/${item.gambar}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;">
-            <div style="flex:1;">
-                <div style="font-size:0.9rem; font-weight:bold;">${item.nama}</div>
-                <div style="font-size:0.8rem; color:#666;">${item.ukuran}, ${item.warna} (x${item.qty})</div>
+    body.innerHTML = cart.map((c, i) => `
+        <div class="flex justify-between items-center border-b py-2">
+            <div>
+                <div class="font-bold text-sm">${c.nama}</div>
+                <div class="text-xs text-gray-500">${c.ukuran}, ${c.warna} x${c.qty}</div>
             </div>
-            <div style="font-weight:bold; color:#004d7a;">${formatIDR(item.harga * item.qty)}</div>
-            <button onclick="removeCartItem(${idx})" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold;">✕</button>
+            <div class="text-right">
+                <div class="text-blue-700 font-bold text-sm">${formatIDR(c.harga * c.qty)}</div>
+                <button onclick="delItem(${i})" class="text-red-500 text-xs">Hapus</button>
+            </div>
         </div>
     `).join("");
-    const total = cart.reduce((sum, item) => sum + (item.harga * item.qty), 0);
-    document.getElementById("cart-total-display").innerText = formatIDR(total);
+    document.getElementById("cart-total-display").innerText = formatIDR(cart.reduce((s, c) => s + c.harga * c.qty, 0));
 }
 
-function removeCartItem(idx) {
-    cart.splice(idx, 1);
-    saveCart();
-    openCartModal();
-    // Refresh halaman pemesanan jika sedang dibuka agar total update
-    if(document.getElementById("order-summary")) renderOrderSummary();
-}
+function delItem(i) { cart.splice(i, 1); saveCart(); toggleCart(); if(document.getElementById("order-summary")) renderOrderSummary(); }
+function updateCartBadge() { document.querySelectorAll(".fc-ultra-badge").forEach(e => e.innerText = cart.reduce((s,c)=>s+c.qty,0)); }
+function closeProductModal() { document.getElementById("product-modal").classList.add("hidden"); }
 function closeCartModal() { document.getElementById("cart-modal").classList.add("hidden"); }
+function processCheckoutRedirect() { if(!cart.length)return alert("Kosong!"); window.location.href = "pemesanan.html"; }
 
-function processCheckout() {
-    // Redirect ke halaman cek pesanan
-    window.location.href = "pemesanan.html";
+/* 5. CHECKOUT PAGE LOGIC */
+function renderOrderSummary() {
+    const container = document.getElementById("order-summary");
+    if (!container) return;
+    if (!cart.length) return container.innerHTML = `<p class="text-center py-4 text-gray-300">Keranjang kosong.</p>`;
+    
+    container.innerHTML = cart.map(c => `
+        <div class="flex justify-between border-b border-white/10 py-2">
+            <div><div class="font-bold text-sm text-white">${c.nama}</div><div class="text-xs text-gray-400">${c.ukuran}, ${c.warna} x${c.qty}</div></div>
+            <div class="font-bold text-yellow-500">${formatIDR(c.harga * c.qty)}</div>
+        </div>
+    `).join("") + `<div class="flex justify-between pt-3 mt-2 border-t border-white/20 font-bold text-lg"><span class="text-white">Total</span><span class="text-yellow-500">${formatIDR(cart.reduce((s,c)=>s+c.harga*c.qty,0))}</span></div>`;
 }
 
-/* ================= INIT ON LOAD ================= */
+function completeOrder(e) {
+    e.preventDefault();
+    if (!cart.length) return alert("Keranjang kosong.");
+    const name = document.getElementById("cust-name").value;
+    const wa = document.getElementById("cust-wa").value;
+    const addr = document.getElementById("cust-address").value;
+    
+    const msg = `Halo Admin, pesanan baru:%0A%0A` + 
+        cart.map(c => `- ${c.nama} (${c.ukuran}, ${c.warna}) x${c.qty}`).join("%0A") + 
+        `%0A%0ATotal: ${formatIDR(cart.reduce((s,c)=>s+c.harga*c.qty,0))}%0A%0ANama: ${name}%0AWA: ${wa}%0AAlamat: ${addr}`;
+    
+    window.open(`https://wa.me/628976272428?text=${msg}`, "_blank");
+}
+
+/* INIT */
 window.addEventListener("load", () => {
     if(document.getElementById("product-container")) renderProducts('all');
     if(document.getElementById("featured-container")) renderFeatured();
-    
-    // INI YANG PENTING: Render Ringkasan Pesanan jika di halaman checkout
+    if(document.getElementById("review-list")) renderReviews();
     if(document.getElementById("order-summary")) renderOrderSummary();
-    
     updateCartBadge();
 });
-    
+        
