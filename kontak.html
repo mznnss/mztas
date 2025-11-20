@@ -40,27 +40,48 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        
         <div class="bg-white/5 border border-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-2xl h-fit">
             <h2 class="text-2xl font-bold mb-6 text-white">Informasi Kontak</h2>
             <ul class="space-y-8 text-sm">
-              <li class="flex items-center gap-4">
-                  <div class="bg-white/10 p-3 rounded-full"><i class="ph-fill ph-whatsapp-logo text-2xl text-green-400"></i></div>
-                  <div><div class="font-bold text-lg text-white">0897-6272-428</div><span class="text-xs text-gray-400">WhatsApp (Admin)</span></div>
+              
+              <li class="flex items-start gap-4">
+                  <div class="bg-white/10 p-3 rounded-full flex-shrink-0">
+                      <i class="ph-fill ph-whatsapp-logo text-2xl text-green-400"></i>
+                  </div>
+                  <div class="min-w-0">
+                      <div class="font-bold text-lg text-white">0897-6272-428</div>
+                      <span class="text-xs text-gray-400">WhatsApp (Admin)</span>
+                  </div>
               </li>
-              <li class="flex items-center gap-4">
-                  <div class="bg-white/10 p-3 rounded-full"><i class="ph-fill ph-envelope-simple text-2xl text-blue-400"></i></div>
-                  <div><div class="font-bold text-lg text-white">mizanzulmi1515@gmail.com</div><span class="text-xs text-gray-400">Email Support</span></div>
+
+              <li class="flex items-start gap-4">
+                  <div class="bg-white/10 p-3 rounded-full flex-shrink-0">
+                      <i class="ph-fill ph-envelope-simple text-2xl text-blue-400"></i>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                      <div class="font-bold text-lg text-white break-all leading-tight">mizanzulmi1515@gmail.com</div>
+                      <span class="text-xs text-gray-400 mt-1 block">Email Support</span>
+                  </div>
               </li>
-              <li class="flex items-center gap-4">
-                  <div class="bg-white/10 p-3 rounded-full"><i class="ph-fill ph-map-pin text-2xl text-red-400"></i></div>
-                  <div><div class="font-bold text-lg text-white">Tangerang Selatan</div><span class="text-xs text-gray-400">Indonesia</span></div>
+
+              <li class="flex items-start gap-4">
+                  <div class="bg-white/10 p-3 rounded-full flex-shrink-0">
+                      <i class="ph-fill ph-map-pin text-2xl text-red-400"></i>
+                  </div>
+                  <div class="min-w-0">
+                      <div class="font-bold text-lg text-white">Tangerang Selatan</div>
+                      <span class="text-xs text-gray-400">Indonesia</span>
+                  </div>
               </li>
+
             </ul>
         </div>
 
         <div class="bg-white/5 border border-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-2xl">
           <h2 class="text-2xl font-bold mb-6 text-white">Kirim Pesan</h2>
-          <form id="contact-form" class="space-y-5">
+          
+          <form id="contact-form" action="https://formspree.io/f/mldpdqog" method="POST" class="space-y-5">
             <div>
                 <input name="name" type="text" required placeholder="Nama Lengkap" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white focus:border-yellow-500 outline-none transition"/>
             </div>
@@ -70,10 +91,13 @@
             <div>
                 <textarea name="message" rows="5" required placeholder="Tulis pesan Anda di sini..." class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white focus:border-yellow-500 outline-none transition"></textarea>
             </div>
-            <button type="submit" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black px-6 py-3 rounded-lg font-bold hover:opacity-90 transition shadow-lg">Kirim Pesan</button>
+            
+            <button type="submit" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black px-6 py-3 rounded-lg font-bold hover:opacity-90 transition shadow-lg flex justify-center items-center gap-2">
+                <span>Kirim Pesan</span>
+                <i class="ph-bold ph-paper-plane-right"></i>
+            </button>
           </form>
-          <div id="contact-status" class="mt-4 text-center text-sm font-bold"></div>
-        </div>
+          </div>
       </div>
     </main>
 
@@ -115,46 +139,6 @@
 
     <script>function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }</script>
     <script src="js/db.js"></script>
-    <script src="js/script.js"></script>
-
-    <script>
-        const form = document.getElementById("contact-form");
-        const status = document.getElementById("contact-status");
-
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const btn = form.querySelector("button");
-            const originalText = btn.innerText;
-            
-            btn.disabled = true;
-            btn.innerText = "Mengirim...";
-            status.innerHTML = "";
-
-            try {
-                const res = await fetch("https://formspree.io/f/mldpdqog", { // ID Formspree kamu
-                    method: "POST",
-                    body: new FormData(form),
-                    headers: {'Accept': 'application/json'}
-                });
-                
-                if (res.ok) {
-                    status.innerHTML = "<div class='bg-green-500/20 text-green-400 p-3 rounded border border-green-500/50'>Pesan berhasil dikirim! Terima kasih.</div>";
-                    form.reset();
-                } else {
-                    const data = await res.json();
-                    if (Object.hasOwn(data, 'errors')) {
-                        status.innerHTML = data["errors"].map(error => error["message"]).join(", ");
-                    } else {
-                        status.innerHTML = "<div class='text-red-400'>Gagal mengirim pesan. Silakan coba lagi.</div>";
-                    }
-                }
-            } catch (err) {
-                status.innerHTML = "<div class='text-red-400'>Terjadi kesalahan koneksi.</div>";
-            } finally {
-                btn.disabled = false;
-                btn.innerText = originalText;
-            }
-        });
-    </script>
-  </body>
-                  </html>
+    <script src="js/script.js"></script> 
+    </body>
+  </html>
