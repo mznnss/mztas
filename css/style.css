@@ -1,60 +1,71 @@
 /* ------------------------------------------
-   ULTRA PREMIUM FLOATING CART (BLUE ELEGANT)
+     ULTRA PREMIUM FLOATING CART (BLUE ELEGANT)
 ------------------------------------------- */
 
 .fc-ultra {
-  width: 75px;
-  height: 75px;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(18px);
+  width: 72px;
+  height: 72px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border: 1.4px solid rgba(255, 255, 255, 0.35);
 
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  position: fixed;
+  bottom: 25px;
+  right: 22px;
+  z-index: 999;
 
   /* Blue Elegant Glow */
   box-shadow:
-    0 0 25px rgba(0, 125, 255, 0.7),
-    0 0 35px rgba(0, 195, 255, 0.5),
-    inset 0 0 20px rgba(255, 255, 255, 0.25);
+    0 0 25px rgba(0, 140, 255, 0.65),
+    0 0 35px rgba(0, 200, 255, 0.4),
+    inset 0 0 18px rgba(255, 255, 255, 0.25);
 
-  animation: floatUltra 4s cubic-bezier(.42,0,.58,1) infinite;
+  animation: floatUltra 4s ease-in-out infinite;
 
-  transition: transform .3s ease, box-shadow .3s ease;
+  transition: transform .3s ease, box-shadow .35s ease;
+  cursor: pointer;
 }
 
+/* Hover effect */
 .fc-ultra:hover {
-  transform: rotateX(15deg) rotateY(15deg) scale(1.15);
+  transform: translateY(-6px) scale(1.1);
   box-shadow:
-    0 0 40px rgba(0, 155, 255, 1),
-    0 0 60px rgba(0, 220, 255, 1),
-    inset 0 0 30px rgba(255, 255, 255, 0.5);
+    0 0 45px rgba(0, 165, 255, 1),
+    0 0 70px rgba(0, 240, 255, 1),
+    inset 0 0 30px rgba(255, 255, 255, 0.55);
 }
 
+/* Icon */
 .fc-ultra-icon {
-  font-size: 34px;
+  font-size: 33px;
   color: white;
-  filter: drop-shadow(0 0 10px rgba(0, 180, 255, 0.9));
+  filter: drop-shadow(0 0 10px rgba(0, 190, 255, 0.9));
+  pointer-events: none;
 }
 
-/* Badge tetap merah premium agar kontras */
+/* Badge (jumlah item) */
 .fc-ultra-badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  background: linear-gradient(135deg, #ff1b1b, #ff004e);
-  padding: 5px 10px;
-  font-size: 13px;
-  border-radius: 50px;
+  top: -6px;
+  right: -6px;
+
+  background: linear-gradient(135deg, #ff1b1b, #ff006a);
+  padding: 5px 9px;
+  font-size: 12.5px;
+  border-radius: 999px;
   color: white;
   font-weight: bold;
-  box-shadow: 0 0 15px rgba(255, 0, 70, 0.7);
+
+  box-shadow: 0 0 12px rgba(255, 0, 70, 0.6);
 }
 
-/* RING GRADASI BIRU ELEGAN */
+/* Holo Ring */
 .fc-ultra-ring {
   position: absolute;
   width: 100%;
@@ -62,10 +73,10 @@
   border-radius: 50%;
   top: 0;
   left: 0;
-  animation: holoBlue 2.5s linear infinite;
+  animation: holoBlue 3s linear infinite;
   border: 4px solid transparent;
 
-  /* Blue Elegant Gradient */
+  /* Blue Gradient */
   border-top-color: #1ea8ff;
   border-right-color: #006aff;
   border-bottom-color: #00eaff;
@@ -74,13 +85,32 @@
 
 /* Floating Animation */
 @keyframes floatUltra {
-  0% { transform: translateY(0) rotate(0); }
-  50% { transform: translateY(-12px) rotate(2deg); }
-  100% { transform: translateY(0) rotate(0); }
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+  100% { transform: translateY(0); }
 }
 
-/* Hologram Rotation (Blue Theme) */
+/* Hologram Rotation */
 @keyframes holoBlue {
-  0%   { transform: rotate(0deg);   filter: blur(2.5px); }
-  100% { transform: rotate(360deg); filter: blur(2.5px); }
+  0%   { transform: rotate(0deg);   filter: blur(3px); }
+  100% { transform: rotate(360deg); filter: blur(3px); }
+}
+
+/* RESPONSIVE — Mobile fix */
+@media (max-width: 480px) {
+  .fc-ultra {
+    width: 60px;
+    height: 60px;
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .fc-ultra-icon {
+    font-size: 27px;
+  }
+
+  .fc-ultra-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
 }
