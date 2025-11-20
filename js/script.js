@@ -1,42 +1,39 @@
-/* js/script.js — FINAL
+/* js/script.js — LUXURY EDITION
    Fitur:
-   - Modal produk detail (pilih ukuran+warna)
-   - Badge HABIS otomatis
-   - Keranjang (localStorage)
-   - Checkout mengurangi stok & WA validation
-   - Reviews (localStorage)
-   - Admin page (edit stok/harga/variasi/reset)
-   - Modal & cart ada di semua halaman
+   - Filter Kategori (Backpack, Slingbag, dll)
+   - Diskon Otomatis untuk item Favorit (20% OFF)
+   - Floating Cart Badge Update
+   - Modal Detail Produk (Pilih Ukuran/Warna)
+   - Checkout WhatsApp
 */
 
-/* --------- Helpers & storage --------- */
+/* ==========================================================================
+   1. INIT & STORAGE
+   ========================================================================== */
 const STORAGE_DB_KEY = "dbProduk";
 const STORAGE_CART_KEY = "mz_cart";
-const STORAGE_REV_KEY = "mz_reviews";
 
-// load DB: prefer localStorage (updated stok), fallback to global `produk` from db.js
+// Load DB: Prioritas localStorage (jika ada update stok), fallback ke db.js
 let db = JSON.parse(localStorage.getItem(STORAGE_DB_KEY) || "null");
 if (!db) {
-  // `produk` should be defined in js/db.js
+  // Pastikan db.js sudah diload di HTML sebelum script ini
   db = typeof produk !== "undefined" ? produk : [];
   localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(db));
-} else {
-  // ensure produk var exists for legacy code
-  window.produk = db;
 }
 
-// Cart
+// Load Cart
 let cart = JSON.parse(localStorage.getItem(STORAGE_CART_KEY) || "[]");
 
 function saveDB() {
   localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(db));
 }
+
 function saveCart() {
   localStorage.setItem(STORAGE_CART_KEY, JSON.stringify(cart));
   updateCartBadge();
 }
 
-/* Format IDR */
+/* Format Rupiah */
 function formatIDR(n) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -45,555 +42,328 @@ function formatIDR(n) {
   }).format(n);
 }
 
-/* Update cart badge on all pages */
-function updateCartBadge() {
-  const totalQty = cart.reduce((s, it) => s + it.qty, 0);
-  document
-    .querySelectorAll(
-      "#cart-count, #cart-count-2, #cart-count-3, #cart-count-pemesanan"
-    )
-    .forEach((el) => {
-      if (el) el.textContent = totalQty;
-    });
-}
-updateCartBadge();
+/* ==========================================================================
+   2. CORE UI: RENDER PRODUK (MODERN CARD)
+   ========================================================================== */
 
-/* --------- NAV / Mobile menu --------- */
-function toggleMenu() {
-  const menu = document.getElementById("mobile-menu");
-  if (menu) menu.classList.toggle("hidden");
-}
+// Fungsi Utama Render dengan Filter
+function renderProducts(filter = 'all') {
+    const container = document.getElementById("product-container"); // Pastikan ID ini ada di HTML
+    if (!container) return;
 
-/* --------- Landing featured (3 favorit) --------- */
-function renderLandingFeatured() {
-  const el = document.getElementById("landing-featured");
-  if (!el) return;
-  const fav = db.filter((p) => p.favorit).slice(0, 3);
-  el.innerHTML = fav
-    .map(
-      (p) => `
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition cursor-pointer"
-         onclick="openProductDetail(${p.id})">
-      <div class="h-52 overflow-hidden bg-gray-100">
-        <img src="img/produk/${p.gambar}" class="w-full h-full object-cover">
-      </div>
-      <div class="p-4">
-        <h3 class="font-bold">${p.nama}</h3>
-        <div class="text-blue-700 font-semibold mt-2">${formatIDR(
-          getLowestPrice(p)
-        )}</div>
-      </div>
-    </div>
-  `
-    )
-    .join("");
-}
-function getLowestPrice(product) {
-  return Math.min(...product.variasi.map((v) => v.harga));
-}
+    container.innerHTML = ''; // Reset isi
 
-/* --------- Katalog render (cards) --------- */
-function renderKatalog() {
-  const container = document.getElementById("katalog-list");
-  if (!container) return;
-  container.innerHTML = db
-    .map((p) => {
-      const lowest = getLowestPrice(p);
-      // is all variations sold out?
-      const outAll = p.variasi.every((v) => v.stok <= 0);
-      const badge = outAll
-        ? `<span class="absolute top-3 left-3 bg-red-600 text-white px-3 py-1 rounded-full text-sm">HABIS</span>`
-        : "";
-      return `
-      <div class="relative bg-white rounded-xl shadow p-3 cursor-pointer hover:shadow-lg transition" onclick="openProductDetail(${
-        p.id
-      })">
-        ${badge}
-        <div class="h-44 overflow-hidden rounded-lg">
-          <img src="img/produk/${p.gambar}" class="w-full h-full object-cover">
+    // 1. Filter Logic
+    const filteredData = filter === 'all' 
+        ? db 
+        : db.filter(p => p.kategori === filter);
+
+    // 2. Generate HTML
+    if (filteredData.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px;">Produk tidak ditemukan di kategori ini.</div>`;
+        return;
+    }
+
+    container.innerHTML = filteredData.map(p => {
+        // Cari harga terendah dari variasi
+        const lowestPrice = Math.min(...p.variasi.map(v => v.harga));
+        
+        // Cek Stok Habis Total
+        const isHabis = p.variasi.every(v => v.stok <= 0);
+        const badgeHabis = isHabis ? `<div style="position:absolute; top:10px; right:10px; background:red; padding:5px 10px; border-radius:5px; font-size:12px; font-weight:bold; z-index:10;">HABIS</div>` : '';
+
+        // Logika Diskon (Jika Favorit = True)
+        let priceHtml = '';
+        let displayPrice = lowestPrice;
+        
+        if (p.favorit) {
+            const discountPrice = lowestPrice * 0.8; // Diskon 20%
+            displayPrice = discountPrice;
+            priceHtml = `
+                <span class="price-original">${formatIDR(lowestPrice)}</span>
+                <span class="discount-tag">20% OFF</span>
+                <div class="price-final">${formatIDR(discountPrice)}</div>
+            `;
+        } else {
+            priceHtml = `<div class="price-final">${formatIDR(lowestPrice)}</div>`;
+        }
+
+        // HTML Card Modern
+        return `
+        <div class="product-card" onclick="openProductDetail(${p.id})">
+            ${badgeHabis}
+            <img src="img/produk/${p.gambar}" class="product-image" alt="${p.nama}" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
+            
+            <div class="product-category">${p.kategori || 'General'}</div>
+            <h3 class="product-title">${p.nama}</h3>
+            
+            <div class="price-wrapper">
+                ${priceHtml}
+            </div>
+            
+            <button style="width:100%; margin-top:15px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:white; padding:8px; border-radius:10px; cursor:pointer; transition:0.3s;" 
+                    onmouseover="this.style.background='var(--gold-accent)'; this.style.color='black'" 
+                    onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.color='white'">
+                ${isHabis ? 'Stok Habis' : 'Lihat Detail'}
+            </button>
         </div>
-        <h3 class="font-semibold mt-3">${p.nama}</h3>
-        <div class="text-blue-700 font-bold mt-1">${formatIDR(lowest)}</div>
-        <div class="mt-3 text-sm text-gray-600">Klik untuk lihat detail</div>
-      </div>
-    `;
-    })
-    .join("");
+        `;
+    }).join("");
 }
 
-/* --------- Product Modal (detail + pilih variasi) --------- */
+// Fungsi Handle Klik Tombol Filter
+function filterProducts(category) {
+    // Update UI Tombol Active
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        // Logika sederhana untuk mencocokkan teks tombol dengan kategori
+        const btnText = btn.innerText;
+        if (btnText === category || (category === 'all' && btnText === 'Semua')) {
+            btn.classList.add('active');
+        }
+        // Mapping manual jika teks tombol beda dengan value kategori
+        if(category === 'Backpack' && btnText === 'Backpack') btn.classList.add('active');
+        if(category === 'Slingbag' && btnText === 'Slingbag') btn.classList.add('active');
+        if(category === 'Handbag' && btnText === 'Handbag') btn.classList.add('active');
+    });
+
+    renderProducts(category);
+}
+
+/* ==========================================================================
+   3. FLOATING CART LOGIC
+   ========================================================================== */
+
+// Update Angka di Floating Cart Badge
+function updateCartBadge() {
+    const totalQty = cart.reduce((s, it) => s + it.qty, 0);
+    
+    // Update badge di Floating Cart (.fc-ultra-badge)
+    const badge = document.querySelector(".fc-ultra-badge");
+    if (badge) {
+        badge.textContent = totalQty;
+        // Efek 'pop' saat angka berubah
+        badge.style.transform = "scale(1.5)";
+        setTimeout(() => badge.style.transform = "scale(1)", 200);
+    }
+}
+
+// Fungsi yang dipanggil saat tombol keranjang diklik
+function toggleCart() {
+    openCartModal();
+}
+
+/* ==========================================================================
+   4. MODAL DETAIL PRODUK & ADD TO CART
+   ========================================================================== */
 let currentProduct = null;
 
 function openProductDetail(id) {
-  currentProduct = db.find((d) => d.id === id);
-  if (!currentProduct) return alert("Produk tidak ditemukan");
+    currentProduct = db.find((d) => d.id === id);
+    if (!currentProduct) return;
 
-  const modal = document.getElementById("product-modal");
-  const body = document.getElementById("product-detail-body");
-  if (!modal || !body) return;
+    // Pastikan HTML punya elemen modal (lihat bagian bawah jawaban ini untuk struktur HTML Modal)
+    const modal = document.getElementById("product-modal");
+    const body = document.getElementById("product-detail-body");
+    if (!modal || !body) return alert("Modal HTML belum dipasang!");
 
-  const ukuranList = [...new Set(currentProduct.variasi.map((v) => v.ukuran))];
+    // Ambil list ukuran unik
+    const ukuranList = [...new Set(currentProduct.variasi.map((v) => v.ukuran))];
+    
+    // Cek harga dasar (untuk display awal)
+    let basePrice = Math.min(...currentProduct.variasi.map(v => v.harga));
+    if(currentProduct.favorit) basePrice = basePrice * 0.8; // Terapkan diskon tampilan
 
-  body.innerHTML = `
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <img src="img/produk/${
-          currentProduct.gambar
-        }" class="w-full h-64 object-cover rounded-lg">
+    // Render Isi Modal (Desain disesuaikan agar bersih)
+    body.innerHTML = `
+    <div style="display:flex; flex-wrap:wrap; gap:20px; color: #333;">
+      <div style="flex:1; min-width:250px;">
+        <img src="img/produk/${currentProduct.gambar}" style="width:100%; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
       </div>
-      <div>
-        <h2 class="text-xl font-bold mb-1">${currentProduct.nama}</h2>
-        <div id="modal-price" class="text-blue-700 font-semibold mb-3">${formatIDR(
-          getLowestPrice(currentProduct)
-        )}</div>
-
-        <label class="block text-sm font-medium">Ukuran</label>
-        <select id="modal-ukuran" class="w-full p-2 border rounded mb-3" onchange="onModalUkuranChange()">
-          <option value="">-- Pilih ukuran --</option>
-          ${ukuranList
-            .map((u) => `<option value="${u}">${u}</option>`)
-            .join("")}
-        </select>
-
-        <label class="block text-sm font-medium">Warna</label>
-        <select id="modal-warna" class="w-full p-2 border rounded mb-3" disabled>
-          <option value="">Pilih ukuran dulu</option>
-        </select>
-
-        <div id="modal-stock" class="text-sm text-gray-600 mb-3"></div>
-
-        <div class="flex items-center gap-2 mb-3">
-          <button onclick="changeModalQty(-1)" class="px-3 py-1 border rounded">-</button>
-          <input id="modal-qty" type="number" value="1" min="1" class="w-20 p-2 border rounded text-center">
-          <button onclick="changeModalQty(1)" class="px-3 py-1 border rounded">+</button>
+      <div style="flex:1; min-width:250px;">
+        <h2 style="font-size:1.5rem; font-weight:bold; margin-bottom:5px;">${currentProduct.nama}</h2>
+        <div style="color:#004d7a; font-weight:bold; font-size:1.2rem; margin-bottom:15px;">
+            ${formatIDR(basePrice)} ${currentProduct.favorit ? '<span style="font-size:0.8rem; color:red; background:#ffcccc; padding:2px 5px; border-radius:4px;">Promo</span>' : ''}
         </div>
 
-        <div class="flex gap-2">
-          <button id="btn-modal-add" onclick="modalAddToCart()" class="flex-1 bg-blue-700 text-white p-2 rounded">Tambah ke Keranjang</button>
-          <button onclick="closeProductModal()" class="flex-1 border p-2 rounded">Batal</button>
+        <div style="margin-bottom:10px;">
+            <label style="display:block; font-size:0.9rem; font-weight:600; margin-bottom:5px;">Pilih Ukuran:</label>
+            <select id="modal-ukuran" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;" onchange="onModalUkuranChange()">
+            <option value="">-- Pilih --</option>
+            ${ukuranList.map((u) => `<option value="${u}">${u}</option>`).join("")}
+            </select>
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label style="display:block; font-size:0.9rem; font-weight:600; margin-bottom:5px;">Pilih Warna:</label>
+            <select id="modal-warna" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;" disabled>
+            <option value="">Pilih ukuran dulu</option>
+            </select>
+        </div>
+
+        <div id="modal-stock" style="font-size:0.85rem; color:#666; margin-bottom:15px;"></div>
+
+        <div style="display:flex; gap:10px; align-items:center; margin-bottom:20px;">
+            <button onclick="changeModalQty(-1)" style="padding:5px 10px; border:1px solid #ccc; background:#eee;">-</button>
+            <input id="modal-qty" type="number" value="1" min="1" style="width:50px; text-align:center; padding:5px; border:1px solid #ccc;">
+            <button onclick="changeModalQty(1)" style="padding:5px 10px; border:1px solid #ccc; background:#eee;">+</button>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+            <button id="btn-modal-add" onclick="modalAddToCart()" style="flex:1; background:#004d7a; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">+ Keranjang</button>
+            <button onclick="closeProductModal()" style="background:white; border:1px solid #ccc; padding:12px; border-radius:8px; cursor:pointer;">Batal</button>
         </div>
       </div>
     </div>
-  `;
+    `;
 
-  // show HABIS badge if all variations out
-  const outAll = currentProduct.variasi.every((v) => v.stok <= 0);
-  const btn = document.getElementById("btn-modal-add");
-  if (outAll) {
-    btn.textContent = "HABIS";
-    btn.disabled = true;
-    btn.classList.add("bg-gray-400");
-  } else {
-    btn.textContent = "Tambah ke Keranjang";
-    btn.disabled = false;
-    btn.classList.remove("bg-gray-400");
-  }
-
-  modal.classList.remove("hidden");
-  document.getElementById("product-title").textContent = currentProduct.nama;
+    modal.classList.remove("hidden"); // Munculkan modal
 }
 
 function closeProductModal() {
-  const modal = document.getElementById("product-modal");
-  if (modal) modal.classList.add("hidden");
+    document.getElementById("product-modal").classList.add("hidden");
 }
 
 function onModalUkuranChange() {
-  const ukuran = document.getElementById("modal-ukuran").value;
-  const warnaSelect = document.getElementById("modal-warna");
-  const stockInfo = document.getElementById("modal-stock");
-  if (!ukuran) {
-    warnaSelect.disabled = true;
-    warnaSelect.innerHTML = `<option value="">Pilih ukuran dulu</option>`;
-    stockInfo.textContent = "";
-    return;
-  }
-  const variations = currentProduct.variasi.filter((v) => v.ukuran === ukuran);
-  warnaSelect.disabled = false;
-  warnaSelect.innerHTML =
-    `<option value="">-- Pilih warna --</option>` +
-    variations
-      .map((v) => {
-        const disabled = v.stok <= 0 ? "disabled" : "";
-        const label = v.stok <= 0 ? `${v.warna} (Habis)` : v.warna;
-        return `<option value="${v.warna}" ${disabled} data-stok="${v.stok}" data-harga="${v.harga}">${label}</option>`;
-      })
-      .join("");
+    const ukuran = document.getElementById("modal-ukuran").value;
+    const warnaSelect = document.getElementById("modal-warna");
+    
+    if (!ukuran) {
+        warnaSelect.disabled = true;
+        warnaSelect.innerHTML = `<option value="">Pilih ukuran dulu</option>`;
+        return;
+    }
 
-  stockInfo.textContent = "";
-  document.getElementById("modal-qty").value = 1;
+    // Filter variasi berdasarkan ukuran
+    const variations = currentProduct.variasi.filter((v) => v.ukuran === ukuran);
+    
+    warnaSelect.disabled = false;
+    warnaSelect.innerHTML = `<option value="">-- Pilih Warna --</option>` +
+        variations.map((v) => {
+            const disabled = v.stok <= 0 ? "disabled" : "";
+            const label = v.stok <= 0 ? `${v.warna} (Habis)` : v.warna;
+            return `<option value="${v.warna}" ${disabled}>${label}</option>`;
+        }).join("");
+    
+    document.getElementById("modal-stock").innerText = "";
 }
 
 function changeModalQty(delta) {
-  const qEl = document.getElementById("modal-qty");
-  let v = parseInt(qEl.value || "1") + delta;
-  if (v < 1) v = 1;
-  qEl.value = v;
+    const qEl = document.getElementById("modal-qty");
+    let v = parseInt(qEl.value || "1") + delta;
+    if (v < 1) v = 1;
+    qEl.value = v;
 }
 
 function modalAddToCart() {
-  const ukuran = document.getElementById("modal-ukuran")?.value;
-  const warna = document.getElementById("modal-warna")?.value;
-  const qty = parseInt(document.getElementById("modal-qty")?.value || "1");
-  if (!ukuran || !warna)
-    return alert("Pilih ukuran dan warna terlebih dahulu.");
+    const ukuran = document.getElementById("modal-ukuran")?.value;
+    const warna = document.getElementById("modal-warna")?.value;
+    const qty = parseInt(document.getElementById("modal-qty")?.value || "1");
 
-  const varObj = currentProduct.variasi.find(
-    (v) => v.ukuran === ukuran && v.warna === warna
-  );
-  if (!varObj) return alert("Variasi tidak ditemukan.");
-  if (varObj.stok <= 0) return alert("Stok habis.");
-  if (qty > varObj.stok) return alert("Stok tidak cukup.");
+    if (!ukuran || !warna) return alert("Mohon pilih ukuran dan warna.");
 
-  // push to cart (merge if same product+variasi)
-  const exist = cart.find(
-    (c) =>
-      c.id === currentProduct.id && c.ukuran === ukuran && c.warna === warna
-  );
-  if (exist) exist.qty += qty;
-  else
-    cart.push({
-      id: currentProduct.id,
-      nama: currentProduct.nama,
-      gambar: currentProduct.gambar,
-      ukuran,
-      warna,
-      harga: varObj.harga,
-      qty,
+    const varObj = currentProduct.variasi.find(v => v.ukuran === ukuran && v.warna === warna);
+    
+    if (!varObj) return alert("Variasi error.");
+    if (varObj.stok < qty) return alert(`Stok hanya tersisa ${varObj.stok}`);
+
+    // Hitung harga (termasuk diskon jika favorit)
+    let finalPrice = varObj.harga;
+    if (currentProduct.favorit) finalPrice = finalPrice * 0.8;
+
+    // Cek item kembar di cart
+    const exist = cart.find(c => c.id === currentProduct.id && c.ukuran === ukuran && c.warna === warna);
+    if (exist) {
+        exist.qty += qty;
+    } else {
+        cart.push({
+            id: currentProduct.id,
+            nama: currentProduct.nama,
+            gambar: currentProduct.gambar,
+            ukuran,
+            warna,
+            harga: finalPrice, // Simpan harga yang sudah didiskon
+            qty
+        });
+    }
+
+    saveCart();
+    alert("Berhasil masuk keranjang!");
+    closeProductModal();
+}
+
+/* ==========================================================================
+   5. CHECKOUT & CART MODAL 
+   ========================================================================== */
+
+function openCartModal() {
+    const modal = document.getElementById("cart-modal");
+    const body = document.getElementById("cart-modal-body");
+    if(!modal) return;
+
+    modal.classList.remove("hidden");
+    
+    if (cart.length === 0) {
+        body.innerHTML = `<p style="text-align:center; padding:20px; color:#666;">Keranjang Kosong</p>`;
+        document.getElementById("cart-total-display").innerText = formatIDR(0);
+        return;
+    }
+
+    body.innerHTML = cart.map((item, idx) => `
+        <div style="display:flex; gap:10px; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px; color:#333;">
+            <img src="img/produk/${item.gambar}" style="width:50px; height:50px; object-fit:cover; border-radius:5px;">
+            <div style="flex:1;">
+                <div style="font-weight:bold; font-size:0.9rem;">${item.nama}</div>
+                <div style="font-size:0.8rem; color:#666;">${item.ukuran} - ${item.warna}</div>
+                <div style="color:#004d7a; font-weight:bold;">${formatIDR(item.harga)} x ${item.qty}</div>
+            </div>
+            <button onclick="removeCartItem(${idx})" style="color:red; background:none; border:none; cursor:pointer;">Hapus</button>
+        </div>
+    `).join("");
+
+    const total = cart.reduce((sum, item) => sum + (item.harga * item.qty), 0);
+    document.getElementById("cart-total-display").innerText = formatIDR(total);
+}
+
+function removeCartItem(idx) {
+    cart.splice(idx, 1);
+    saveCart();
+    openCartModal(); // Refresh render
+}
+
+function closeCartModal() {
+    document.getElementById("cart-modal").classList.add("hidden");
+}
+
+function processCheckout() {
+    if(cart.length === 0) return alert("Keranjang kosong!");
+    
+    const waNumber = "628976272428"; // Ganti dengan nomor WA kamu
+    
+    let message = `Halo Admin, saya mau pesan tas:%0A%0A`;
+    let total = 0;
+
+    cart.forEach(item => {
+        const subtotal = item.harga * item.qty;
+        total += subtotal;
+        message += `- ${item.nama} (${item.ukuran}, ${item.warna}) x${item.qty} = ${formatIDR(subtotal)}%0A`;
     });
 
-  saveCart();
-  alert("Berhasil ditambahkan ke keranjang.");
-  closeProductModal();
-  renderKatalog(); // update badges if needed
+    message += `%0A*Total: ${formatIDR(total)}*`;
+    message += `%0A%0AMohon info ongkirnya, terima kasih.`;
+
+    // Buka WhatsApp
+    window.open(`https://wa.me/${waNumber}?text=${message}`, "_blank");
+    
+    // Opsional: Kosongkan keranjang setelah checkout
+    // cart = []; saveCart(); closeCartModal();
 }
 
-/* --------- Cart modal --------- */
-function openCartModal() {
-  updateCartModal();
-  document
-    .querySelectorAll("#cart-modal")
-    .forEach((m) => m.classList.remove("hidden"));
-}
-function closeCartModal() {
-  document
-    .querySelectorAll("#cart-modal")
-    .forEach((m) => m.classList.add("hidden"));
-}
-function updateCartModal() {
-  document.querySelectorAll("#cart-modal-body").forEach((body) => {
-    if (!body) return;
-    if (cart.length === 0) {
-      body.innerHTML = `<div class="text-center text-gray-500 py-6">Keranjang kosong</div>`;
-      document
-        .querySelectorAll("#cart-total")
-        .forEach((t) => (t.textContent = "Rp 0"));
-      return;
-    }
-    body.innerHTML = cart
-      .map(
-        (it, idx) => `
-      <div class="flex items-center justify-between gap-4 border-b py-3">
-        <div class="flex items-center gap-3">
-          <img src="img/produk/${
-            it.gambar
-          }" class="w-16 h-16 object-cover rounded">
-          <div>
-            <div class="font-semibold">${it.nama}</div>
-            <div class="text-sm text-gray-600">${it.ukuran} • ${it.warna}</div>
-            <div class="text-blue-700 font-bold mt-1">${formatIDR(
-              it.harga
-            )}</div>
-          </div>
-        </div>
-        <div class="text-right">
-          <div class="flex items-center gap-2 justify-end">
-            <button onclick="changeCartQty(${idx}, -1)" class="px-2 py-1 border rounded">-</button>
-            <div>${it.qty}</div>
-            <button onclick="changeCartQty(${idx}, 1)" class="px-2 py-1 border rounded">+</button>
-          </div>
-          <button onclick="removeCartItem(${idx})" class="text-sm text-red-500 mt-2">Hapus</button>
-        </div>
-      </div>
-    `
-      )
-      .join("");
 
-    const total = cart.reduce((s, i) => s + i.qty * i.harga, 0);
-    document
-      .querySelectorAll("#cart-total")
-      .forEach((t) => (t.textContent = formatIDR(total)));
-  });
-  updateCartBadge();
-}
-
-function changeCartQty(index, delta) {
-  if (!cart[index]) return;
-  cart[index].qty += delta;
-  if (cart[index].qty <= 0) cart.splice(index, 1);
-  saveCart();
-  updateCartModal();
-}
-function removeCartItem(index) {
-  cart.splice(index, 1);
-  saveCart();
-  updateCartModal();
-}
-function clearCart() {
-  cart = [];
-  saveCart();
-  updateCartModal();
-}
-function checkoutFromModal() {
-  closeCartModal();
-  window.location.href = "pemesanan.html";
-}
-
-/* --------- Pemesanan page: render order summary --------- */
-function renderOrderSummary() {
-  const el = document.getElementById("order-summary");
-  if (!el) return;
-  if (cart.length === 0) {
-    el.innerHTML = `<div class="text-center text-gray-500 py-6">Keranjang kosong — <a href="katalog.html" class="text-blue-600">Kembali ke katalog</a></div>`;
-    return;
-  }
-  el.innerHTML =
-    cart
-      .map(
-        (it) => `
-    <div class="border-b py-3">
-      <div class="flex justify-between">
-        <div>
-          <div class="font-semibold">${it.nama}</div>
-          <div class="text-sm text-gray-600">${it.ukuran} • ${it.warna}</div>
-          <div class="text-gray-600">Jumlah: ${it.qty}</div>
-        </div>
-        <div class="font-semibold">${formatIDR(it.qty * it.harga)}</div>
-      </div>
-    </div>
-  `
-      )
-      .join("") +
-    `<div class="mt-4 text-right font-bold">${formatIDR(
-      cart.reduce((s, i) => s + i.harga * i.qty, 0)
-    )}</div>`;
-}
-
-/* WA phone format helper: convert 08... to 628... */
-function normalizePhoneToWA(no) {
-  no = no.trim();
-  no = no.replace(/\s+/g, "");
-  if (no.startsWith("0")) no = "62" + no.slice(1);
-  if (no.startsWith("+")) no = no.slice(1);
-  return no;
-}
-
-/* completeOrder: reduce stok and open WA */
-function completeOrder(e) {
-  e.preventDefault();
-  if (cart.length === 0) return alert("Keranjang kosong.");
-
-  const name = document.getElementById("cust-name").value?.trim();
-  let wa = document.getElementById("cust-wa").value?.trim();
-  const address = document.getElementById("cust-address").value?.trim();
-  if (!name || !wa || !address) return alert("Lengkapi data pemesan.");
-
-  // check stok again and reduce
-  for (const it of cart) {
-    const prod = db.find((p) => p.id === it.id);
-    const varObj = prod.variasi.find(
-      (v) => v.ukuran === it.ukuran && v.warna === it.warna
-    );
-    if (!varObj) return alert(`Variasi ${it.nama} tidak ditemukan.`);
-    if (varObj.stok < it.qty)
-      return alert(`Stok ${it.nama} (${it.ukuran}, ${it.warna}) tidak cukup.`);
-  }
-
-  // Reduce stok
-  cart.forEach((it) => {
-    const prod = db.find((p) => p.id === it.id);
-    const varObj = prod.variasi.find(
-      (v) => v.ukuran === it.ukuran && v.warna === it.warna
-    );
-    varObj.stok -= it.qty;
-    if (varObj.stok < 0) varObj.stok = 0;
-  });
-
-  saveDB();
-
-  // prepare WA message
-  const total = cart.reduce((s, i) => s + i.harga * i.qty, 0);
-  let pesan = `Halo MZ Collection, saya ingin memesan:%0A%0A`;
-  cart.forEach((it) => {
-    pesan += `- ${it.nama} (${it.ukuran}, ${it.warna}) x${it.qty} = ${formatIDR(
-      it.harga * it.qty
-    )}%0A`;
-  });
-  pesan += `%0ATotal: ${formatIDR(total)}%0A%0A`;
-  pesan += `Nama: ${encodeURIComponent(name)}%0A`;
-  // normalize WA number
-  const waNorm = normalizePhoneToWA(wa);
-  pesan += `WhatsApp: ${waNorm}%0AAlamat: ${encodeURIComponent(
-    address
-  )}%0A%0ATerima kasih!`;
-
-  // open WA to your number (fixed)
-  const merchantWA = "628976272428";
-  // clear cart, but save after building message
-  cart = [];
-  saveCart();
-  saveDB();
-  updateCartBadge();
-  window.open(`https://wa.me/${merchantWA}?text=${pesan}`, "_blank");
-}
-
-/* --------- Reviews (localStorage) --------- */
-function getReviews() {
-  return JSON.parse(localStorage.getItem(STORAGE_REV_KEY) || "[]");
-}
-function saveReviews(rev) {
-  localStorage.setItem(STORAGE_REV_KEY, JSON.stringify(rev));
-}
-function renderReviews() {
-  const el = document.getElementById("review-list");
-  if (!el) return;
-  const rev = getReviews();
-  if (rev.length === 0) {
-    el.innerHTML = `<div class="text-center text-gray-500 py-10">Belum ada ulasan.</div>`;
-    return;
-  }
-  el.innerHTML = rev
-    .map(
-      (r) => `
-    <div class="bg-white p-5 rounded-xl shadow">
-      <div class="flex items-center gap-3 mb-2">
-        <div class="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center">${
-          r.icon || "👤"
-        }</div>
-        <div>
-          <div class="font-semibold">${r.name}</div>
-          <div class="text-xs text-gray-500">${r.date}</div>
-        </div>
-      </div>
-      <div class="font-semibold">${r.title}</div>
-      <div class="text-gray-700 mt-1">${r.text}</div>
-      <div class="text-yellow-500 mt-2">${"★".repeat(r.rating)}</div>
-    </div>
-  `
-    )
-    .join("");
-}
-function sendReview(e) {
-  e.preventDefault();
-  const name = document.getElementById("ulasan-nama").value.trim();
-  const title = document.getElementById("ulasan-judul").value.trim();
-  const text = document.getElementById("ulasan-text").value.trim();
-  const rating = Number(document.getElementById("ulasan-rating").value);
-  if (!name || !title || !text) return alert("Lengkapi semua field.");
-  const rev = getReviews();
-  rev.unshift({
-    name,
-    title,
-    text,
-    rating,
-    date: new Date().toLocaleDateString("id-ID"),
-    icon: "👤",
-  });
-  saveReviews(rev);
-  renderReviews();
-  document.getElementById("form-review")?.reset();
-  alert("Terima kasih! Ulasan Anda telah disimpan.");
-}
-
-/* --------- ADMIN FUNCTIONS (admin.html) --------- */
-function renderAdmin() {
-  const el = document.getElementById("admin-body");
-  if (!el) return;
-  el.innerHTML = db
-    .map(
-      (p) => `
-    <div class="bg-white p-4 rounded shadow mb-3">
-      <div class="flex items-start gap-4">
-        <img src="img/produk/${
-          p.gambar
-        }" class="w-20 h-20 object-cover rounded">
-        <div class="flex-1">
-          <div class="font-bold">${p.nama}</div>
-          <div class="text-sm text-gray-600">ID: ${p.id}</div>
-          <div class="mt-2">
-            ${p.variasi
-              .map(
-                (v, idx) => `
-              <div class="flex items-center gap-2 mt-2">
-                <div class="flex-1 text-sm">${v.ukuran} • ${
-                  v.warna
-                } — ${formatIDR(v.harga)} — Stok: <strong>${
-                  v.stok
-                }</strong></div>
-                <input type="number" min="0" value="${
-                  v.stok
-                }" id="admin-stock-${
-                  p.id
-                }-${idx}" class="w-24 p-1 border rounded">
-                <button onclick="adminUpdateStock(${
-                  p.id
-                }, ${idx})" class="px-3 py-1 bg-blue-600 text-white rounded">Simpan</button>
-                <button onclick="adminRemoveVariation(${
-                  p.id
-                }, ${idx})" class="px-3 py-1 bg-red-500 text-white rounded">Hapus</button>
-              </div>
-            `
-              )
-              .join("")}
-          </div>
-        </div>
-      </div>
-    </div>
-  `
-    )
-    .join("");
-}
-
-function adminUpdateStock(productId, variationIndex) {
-  const input = document.getElementById(
-    `admin-stock-${productId}-${variationIndex}`
-  );
-  if (!input) return;
-  const newStock = parseInt(input.value || "0");
-  const prod = db.find((p) => p.id === productId);
-  if (!prod) return alert("Produk tidak ditemukan.");
-  prod.variasi[variationIndex].stok = newStock;
-  saveDB();
-  renderAdmin();
-  renderKatalog();
-  alert("Stok diperbarui.");
-}
-
-function adminRemoveVariation(productId, variationIndex) {
-  const prod = db.find((p) => p.id === productId);
-  if (!prod) return;
-  if (!confirm("Hapus variasi ini?")) return;
-  prod.variasi.splice(variationIndex, 1);
-  saveDB();
-  renderAdmin();
-  renderKatalog();
-}
-
-function adminResetDB() {
-  if (
-    !confirm("Reset database ke versi awal? Semua perubahan stok akan hilang.")
-  )
-    return;
-  localStorage.removeItem(STORAGE_DB_KEY);
-  location.reload();
-}
-
-/* --------- INIT on load for pages --------- */
+/* ==========================================================================
+   6. INIT ON LOAD
+   ========================================================================== */
 window.addEventListener("load", () => {
-  renderLandingFeatured();
-  renderKatalog();
-  renderReviews();
-  renderOrderSummary();
-  renderAdmin?.();
-  updateCartBadge();
+    renderProducts('all'); // Render semua produk awal
+    updateCartBadge();
 });
