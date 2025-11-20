@@ -174,38 +174,48 @@ function handleReviewSubmit(e) {
     showNotif("Ulasan berhasil dikirim!", "success");
 }
 
-/* ================= 5. CONTACT FORM (FORMSPREE) ================= */
-// Fungsi untuk menangani pengiriman pesan di halaman Kontak
-function handleContactSubmit(e) {
-    e.preventDefault();
+/* ================= 5. CONTACT FORM (FORMSPREE FIX) ================= */
+async function handleContactSubmit(e) {
+    e.preventDefault(); // Mencegah reload halaman
     
     const form = e.target;
     const data = new FormData(form);
     
     showNotif("Sedang mengirim pesan...", "info");
 
-    fetch(form.action, {
-        method: form.method,
-        body: data,
-        headers: {
-            'Accept': 'application/json'
-        }
-    }).then(response => {
+    try {
+        const response = await fetch(form.action, {
+            method: form.method,
+            body: data,
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        // LOGIKA BARU: Asalkan status kode 200-299 (Sukses), kita anggap berhasil
         if (response.ok) {
             showNotif("Pesan berhasil terkirim!", "success");
-            form.reset();
+            form.reset(); // Kosongkan form
+            
+            // Opsional: Sembunyikan kotak hijau lama jika ada
+            const oldAlert = document.querySelector('.alert-success'); // Sesuaikan class jika tau
+            if(oldAlert) oldAlert.style.display = 'none';
+            
         } else {
-            response.json().then(data => {
-                if (Object.hasOwn(data, 'errors')) {
-                    showNotif(data["errors"].map(error => error["message"]).join(", "), "error");
-                } else {
-                    showNotif("Gagal mengirim pesan.", "error");
-                }
-            });
+            // Jika server menolak (misal error validasi)
+            const result = await response.json();
+            if (Object.hasOwn(result, 'errors')) {
+                const errorMessage = result["errors"].map(error => error["message"]).join(", ");
+                showNotif(errorMessage, "error");
+            } else {
+                showNotif("Gagal mengirim pesan. Cek data Anda.", "error");
+            }
         }
-    }).catch(error => {
+    } catch (error) {
+        // Jika benar-benar tidak ada internet atau Formspree down
+        console.error("Error:", error);
         showNotif("Terjadi kesalahan koneksi.", "error");
-    });
+    }
 }
 
 /* ================= 6. MODAL & CART SYSTEM ================= */
