@@ -1,7 +1,6 @@
-/* js/script.js — FINAL + MODERN NOTIFICATION + FORMSPREE */
+/* js/script.js — FINAL + RESET CART FEATURE */
 
 /* ================= 1. CUSTOM NOTIFICATION SYSTEM ================= */
-// Menggantikan alert() dengan notifikasi modern (Tailwind)
 function showNotif(message, type = 'success') {
     const existing = document.getElementById('mz-notif');
     if (existing) existing.remove();
@@ -9,7 +8,6 @@ function showNotif(message, type = 'success') {
     const notif = document.createElement('div');
     notif.id = 'mz-notif';
     
-    // Style dasar: Fixed Top, Pill Shape, Backdrop Blur
     let baseClass = "fixed top-5 left-1/2 transform -translate-x-1/2 z-[100000] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-md transition-all duration-300 translate-y-[-100px] opacity-0";
     
     if (type === 'success') {
@@ -19,20 +17,17 @@ function showNotif(message, type = 'success') {
         notif.className = `${baseClass} bg-black/80 border-red-500/50 text-white`;
         notif.innerHTML = `<i class="ph-fill ph-warning-circle text-2xl text-red-400"></i> <span class="font-bold text-sm">${message}</span>`;
     } else {
-        // Tipe Info / Loading
         notif.className = `${baseClass} bg-black/80 border-blue-500/50 text-white`;
         notif.innerHTML = `<i class="ph-fill ph-info text-2xl text-blue-400"></i> <span class="font-bold text-sm">${message}</span>`;
     }
 
     document.body.appendChild(notif);
 
-    // Animasi Masuk
     setTimeout(() => {
         notif.classList.remove('translate-y-[-100px]', 'opacity-0');
         notif.classList.add('translate-y-0', 'opacity-100');
     }, 10);
 
-    // Hilang otomatis setelah 3 detik
     setTimeout(() => {
         notif.classList.remove('translate-y-0', 'opacity-100');
         notif.classList.add('translate-y-[-100px]', 'opacity-0');
@@ -45,11 +40,9 @@ const STORAGE_DB_KEY = "dbProduk_vFinal";
 const STORAGE_CART_KEY = "mz_cart";
 const STORAGE_REV_KEY = "mz_reviews";
 
-// Load Database Produk (Pastikan variabel 'produk' ada di file data_produk.js)
 let db = typeof produk !== "undefined" ? produk : [];
 localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(db));
 
-// Load Data dari LocalStorage
 let cart = JSON.parse(localStorage.getItem(STORAGE_CART_KEY) || "[]");
 let reviews = JSON.parse(localStorage.getItem(STORAGE_REV_KEY) || "[]");
 
@@ -105,7 +98,6 @@ function renderProducts(filter = 'all') {
     
     const data = filter === 'all' ? db : db.filter(p => p.kategori === filter);
     
-    // Menggunakan min-h-[50vh] agar jika produk kosong, footer tetap terdorong agak ke bawah
     container.innerHTML = data.length 
         ? data.map(createCardHTML).join("") 
         : `<div class="col-span-full flex flex-col items-center justify-center py-20 min-h-[300px] text-gray-400">
@@ -123,8 +115,7 @@ function renderFeatured() {
 
 function filterProducts(cat) {
     document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('active'); // Pastikan class .active ada stylenya di CSS
-        // Logika penyesuaian teks tombol dengan kategori data
+        b.classList.remove('active');
         if (b.innerText === cat || (cat === 'all' && b.innerText === 'Semua') || (cat === 'Accessories' && b.innerText === 'Aksesoris')) {
             b.classList.add('active');
         }
@@ -159,7 +150,6 @@ function handleReviewSubmit(e) {
 
     if (!name || !text) return showNotif("Mohon lengkapi data ulasan.", "error");
 
-    // Masukkan ulasan baru ke array paling atas
     reviews.unshift({ 
         name, 
         text, 
@@ -176,7 +166,7 @@ function handleReviewSubmit(e) {
 
 /* ================= 5. CONTACT FORM (FORMSPREE FIX) ================= */
 async function handleContactSubmit(e) {
-    e.preventDefault(); // Mencegah reload halaman
+    e.preventDefault();
     
     const form = e.target;
     const data = new FormData(form);
@@ -187,22 +177,15 @@ async function handleContactSubmit(e) {
         const response = await fetch(form.action, {
             method: form.method,
             body: data,
-            headers: {
-                'Accept': 'application/json'
-            }
+            headers: { 'Accept': 'application/json' }
         });
 
-        // LOGIKA BARU: Asalkan status kode 200-299 (Sukses), kita anggap berhasil
         if (response.ok) {
             showNotif("Pesan berhasil terkirim!", "success");
-            form.reset(); // Kosongkan form
-            
-            // Opsional: Sembunyikan kotak hijau lama jika ada
-            const oldAlert = document.querySelector('.alert-success'); // Sesuaikan class jika tau
+            form.reset();
+            const oldAlert = document.querySelector('.alert-success');
             if(oldAlert) oldAlert.style.display = 'none';
-            
         } else {
-            // Jika server menolak (misal error validasi)
             const result = await response.json();
             if (Object.hasOwn(result, 'errors')) {
                 const errorMessage = result["errors"].map(error => error["message"]).join(", ");
@@ -212,7 +195,6 @@ async function handleContactSubmit(e) {
             }
         }
     } catch (error) {
-        // Jika benar-benar tidak ada internet atau Formspree down
         console.error("Error:", error);
         showNotif("Terjadi kesalahan koneksi.", "error");
     }
@@ -370,6 +352,7 @@ function renderOrderSummary() {
     `).join("") + `<div class="flex justify-between pt-4 mt-2 border-t border-white/20 font-bold text-lg"><span class="text-white">Total</span><span class="text-yellow-500">${formatIDR(cart.reduce((s,c)=>s+c.harga*c.qty,0))}</span></div>`;
 }
 
+// [DIPERBARUI] Fungsi ini sekarang akan mereset keranjang setelah kirim WA
 function completeOrder(e) {
     e.preventDefault();
     if (!cart.length) return showNotif("Keranjang kosong!", "error");
@@ -380,39 +363,43 @@ function completeOrder(e) {
     
     if(!name || !wa || !addr) return showNotif("Harap lengkapi semua data pengiriman.", "error");
 
+    // Format Pesan WhatsApp
     const msg = `Halo Admin MZ Collection,%0A%0ASaya ingin memesan:%0A` + 
         cart.map(c => `- ${c.nama} (${c.ukuran}, ${c.warna}) x${c.qty}`).join("%0A") + 
         `%0A%0ATotal: ${formatIDR(cart.reduce((s,c)=>s+c.harga*c.qty,0))}%0A%0ANama: ${name}%0AWA: ${wa}%0AAlamat: ${addr}`;
     
+    // 1. Buka WhatsApp
     window.open(`https://wa.me/628976272428?text=${msg}`, "_blank");
+
+    // 2. Reset Keranjang & Tampilan
+    cart = []; // Kosongkan array
+    saveCart(); // Simpan ke memory
+    renderOrderSummary(); // Bersihkan tabel order
+    document.getElementById("form-checkout").reset(); // Bersihkan input form
+
+    // 3. Notifikasi & Redirect
+    showNotif("Pesanan diproses! Terima kasih.", "success");
+    setTimeout(() => {
+        window.location.href = "index.html";
+    }, 1000);
 }
 
 /* ================= 8. INIT (EVENT LISTENERS) ================= */
 window.addEventListener("load", () => {
-    // 1. Render Halaman Produk
     if(document.getElementById("product-container")) renderProducts('all');
     if(document.getElementById("featured-container")) renderFeatured();
-    
-    // 2. Render Ulasan & Pasang Event Listenernya
     if(document.getElementById("review-list")) renderReviews();
-    const reviewForm = document.getElementById("form-review");
-    if(reviewForm) {
-        reviewForm.addEventListener("submit", handleReviewSubmit);
-    }
-
-    // 3. Render Summary Checkout & Pasang Event Listenernya
     if(document.getElementById("order-summary")) renderOrderSummary();
-    const checkoutForm = document.getElementById("form-checkout");
-    if(checkoutForm) {
-        checkoutForm.addEventListener("submit", completeOrder);
-    }
 
-    // 4. CONTACT FORM LISTENER (PENTING)
-    // Pastikan di HTML kontak ada <form id="contact-form" action="https://formspree.io/f/ID_FORMSPREE_KAMU" method="POST">
+    const reviewForm = document.getElementById("form-review");
+    if(reviewForm) reviewForm.addEventListener("submit", handleReviewSubmit);
+
+    const checkoutForm = document.getElementById("form-checkout");
+    if(checkoutForm) checkoutForm.addEventListener("submit", completeOrder);
+
     const contactForm = document.getElementById("contact-form");
-    if(contactForm) {
-        contactForm.addEventListener("submit", handleContactSubmit);
-    }
+    if(contactForm) contactForm.addEventListener("submit", handleContactSubmit);
 
     updateCartBadge();
 });
+        
