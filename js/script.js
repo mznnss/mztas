@@ -1,27 +1,60 @@
-/* js/script.js — FINAL COMPLETE CODE (MERGED) */
+/* js/script.js — FINAL + MODERN NOTIFICATION + FORMSPREE */
 
-/* ================= 1. INIT & DATA HANDLING ================= */
-const STORAGE_DB_KEY = "dbProduk_vFinal"; // Key baru agar data fresh
+/* ================= 1. CUSTOM NOTIFICATION SYSTEM ================= */
+// Menggantikan alert() dengan notifikasi modern (Tailwind)
+function showNotif(message, type = 'success') {
+    const existing = document.getElementById('mz-notif');
+    if (existing) existing.remove();
+
+    const notif = document.createElement('div');
+    notif.id = 'mz-notif';
+    
+    // Style dasar: Fixed Top, Pill Shape, Backdrop Blur
+    let baseClass = "fixed top-5 left-1/2 transform -translate-x-1/2 z-[100000] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-md transition-all duration-300 translate-y-[-100px] opacity-0";
+    
+    if (type === 'success') {
+        notif.className = `${baseClass} bg-black/80 border-green-500/50 text-white`;
+        notif.innerHTML = `<i class="ph-fill ph-check-circle text-2xl text-green-400"></i> <span class="font-bold text-sm">${message}</span>`;
+    } else if (type === 'error') {
+        notif.className = `${baseClass} bg-black/80 border-red-500/50 text-white`;
+        notif.innerHTML = `<i class="ph-fill ph-warning-circle text-2xl text-red-400"></i> <span class="font-bold text-sm">${message}</span>`;
+    } else {
+        // Tipe Info / Loading
+        notif.className = `${baseClass} bg-black/80 border-blue-500/50 text-white`;
+        notif.innerHTML = `<i class="ph-fill ph-info text-2xl text-blue-400"></i> <span class="font-bold text-sm">${message}</span>`;
+    }
+
+    document.body.appendChild(notif);
+
+    // Animasi Masuk
+    setTimeout(() => {
+        notif.classList.remove('translate-y-[-100px]', 'opacity-0');
+        notif.classList.add('translate-y-0', 'opacity-100');
+    }, 10);
+
+    // Hilang otomatis setelah 3 detik
+    setTimeout(() => {
+        notif.classList.remove('translate-y-0', 'opacity-100');
+        notif.classList.add('translate-y-[-100px]', 'opacity-0');
+        setTimeout(() => notif.remove(), 300);
+    }, 3000);
+}
+
+/* ================= 2. INIT & DATA HANDLING ================= */
+const STORAGE_DB_KEY = "dbProduk_vFinal";
 const STORAGE_CART_KEY = "mz_cart";
-const STORAGE_REV_KEY = "mz_reviews"; // Key untuk ulasan
+const STORAGE_REV_KEY = "mz_reviews";
 
-// Load Database Produk (Pastikan file data_produk.js sudah diload sebelumnya di HTML)
+// Load Database Produk (Pastikan variabel 'produk' ada di file data_produk.js)
 let db = typeof produk !== "undefined" ? produk : [];
-
-// Force update database di LocalStorage saat reload agar sinkron dengan file data_produk.js
 localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(db));
 
-// Load Keranjang & Ulasan dari Storage
+// Load Data dari LocalStorage
 let cart = JSON.parse(localStorage.getItem(STORAGE_CART_KEY) || "[]");
 let reviews = JSON.parse(localStorage.getItem(STORAGE_REV_KEY) || "[]");
 
-// Fungsi Format Rupiah
 function formatIDR(n) {
-    return new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-        minimumFractionDigits: 0
-    }).format(n);
+    return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
 }
 
 function saveCart() {
@@ -29,41 +62,39 @@ function saveCart() {
     updateCartBadge();
 }
 
-/* ================= 2. RENDER PRODUCTS (KATALOG & HOME) ================= */
-
+/* ================= 3. RENDER PRODUCTS ================= */
 function createCardHTML(p) {
-    // Cari harga terendah dari variasi
     const lowestPrice = Math.min(...p.variasi.map(v => v.harga));
     const isHabis = p.variasi.every(v => v.stok <= 0);
-    
-    // Badge Stok Habis
-    const badgeHabis = isHabis 
-        ? `<div style="position:absolute; top:10px; right:10px; background:red; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:bold; color:white; z-index:10;">HABIS</div>` 
-        : '';
+    const badgeHabis = isHabis ? `<div class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded z-10">HABIS</div>` : '';
 
-    // Logika Tampilan Harga (Coret jika favorit/diskon)
     let priceHtml = '';
     if (p.favorit) {
-        const discount = lowestPrice * 0.8; // Diskon 20%
+        const discount = lowestPrice * 0.8;
         priceHtml = `
-            <span style="text-decoration:line-through; color:#aaa; font-size:0.8rem;">${formatIDR(lowestPrice)}</span> 
-            <span style="color:#FFD700; font-weight:bold; font-size:1.1rem; margin-left:5px;">${formatIDR(discount)}</span>`;
+            <div class="flex flex-col">
+                <span class="text-xs text-gray-400 line-through">${formatIDR(lowestPrice)}</span> 
+                <span class="text-yellow-400 font-bold text-lg">${formatIDR(discount)}</span>
+            </div>`;
     } else {
-        priceHtml = `<span style="color:#FFD700; font-weight:bold; font-size:1.1rem;">${formatIDR(lowestPrice)}</span>`;
+        priceHtml = `<span class="text-yellow-400 font-bold text-lg">${formatIDR(lowestPrice)}</span>`;
     }
 
-    // Return HTML Card (Menggunakan inline style agar aman, atau class utility jika pakai framework)
     return `
-    <div class="product-card" onclick="openProductDetail(${p.id})" style="cursor:pointer; position:relative;">
+    <div class="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-yellow-500/50 transition group flex flex-col h-full relative">
         ${badgeHabis}
-        <img src="img/produk/${p.gambar}" class="product-image" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
-        <div class="product-info" style="padding:10px;">
-            <div class="product-category" style="font-size:0.8rem; color:#aaa;">${p.kategori}</div>
-            <h3 class="product-title" style="font-weight:bold; margin:5px 0;">${p.nama}</h3>
-            <div class="price-wrapper">${priceHtml}</div>
-            <button style="width:100%; margin-top:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:white; padding:8px; border-radius:8px;">
-                ${isHabis ? 'Stok Habis' : 'Lihat Detail'}
-            </button>
+        <div class="aspect-[4/3] overflow-hidden bg-gray-800 cursor-pointer" onclick="openProductDetail(${p.id})">
+            <img src="img/produk/${p.gambar}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
+        </div>
+        <div class="p-4 flex flex-col flex-grow">
+            <div class="text-xs text-gray-400 mb-1 uppercase tracking-wider">${p.kategori}</div>
+            <h3 class="text-white font-bold text-lg leading-tight mb-2 cursor-pointer hover:text-yellow-500" onclick="openProductDetail(${p.id})">${p.nama}</h3>
+            <div class="mt-auto pt-3 border-t border-white/10 flex justify-between items-center">
+                ${priceHtml}
+                <button onclick="openProductDetail(${p.id})" class="bg-white/10 hover:bg-yellow-500 hover:text-black text-white p-2 rounded-full transition">
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
         </div>
     </div>`;
 }
@@ -71,93 +102,119 @@ function createCardHTML(p) {
 function renderProducts(filter = 'all') {
     const container = document.getElementById("product-container");
     if (!container) return;
-
+    
     const data = filter === 'all' ? db : db.filter(p => p.kategori === filter);
     
-    if (data.length === 0) {
-        container.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:20px; color:white;">Produk tidak ditemukan.</p>`;
-    } else {
-        container.innerHTML = data.map(createCardHTML).join("");
-    }
+    // Menggunakan min-h-[50vh] agar jika produk kosong, footer tetap terdorong agak ke bawah
+    container.innerHTML = data.length 
+        ? data.map(createCardHTML).join("") 
+        : `<div class="col-span-full flex flex-col items-center justify-center py-20 min-h-[300px] text-gray-400">
+            <i class="ph-duotone ph-magnifying-glass text-4xl mb-3"></i>
+            <p>Produk tidak ditemukan.</p>
+           </div>`;
 }
 
 function renderFeatured() {
     const container = document.getElementById("featured-container");
     if (!container) return;
-    
-    // Ambil 4 produk favorit
     const data = db.filter(p => p.favorit).slice(0, 4);
     container.innerHTML = data.map(createCardHTML).join("");
 }
 
 function filterProducts(cat) {
-    // Update tombol aktif
     document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('active');
-        // Logika pencocokan teks tombol dengan kategori
-        if (b.innerText === cat || 
-           (cat === 'all' && b.innerText === 'Semua') || 
-           (cat === 'Accessories' && b.innerText === 'Aksesoris')) {
+        b.classList.remove('active'); // Pastikan class .active ada stylenya di CSS
+        // Logika penyesuaian teks tombol dengan kategori data
+        if (b.innerText === cat || (cat === 'all' && b.innerText === 'Semua') || (cat === 'Accessories' && b.innerText === 'Aksesoris')) {
             b.classList.add('active');
         }
     });
     renderProducts(cat);
 }
 
-/* ================= 3. REVIEW SYSTEM (LOCALSTORAGE) ================= */
-
+/* ================= 4. REVIEW SYSTEM (ULASAN) ================= */
 function renderReviews() {
     const container = document.getElementById("review-list");
     if (!container) return;
 
     if (reviews.length === 0) {
-        container.innerHTML = `<p style="text-align:center; color:#aaa; font-style:italic;">Belum ada ulasan. Jadilah yang pertama!</p>`;
+        container.innerHTML = `<p class="text-center text-gray-400 italic py-5">Belum ada ulasan. Jadilah yang pertama!</p>`;
         return;
     }
 
     container.innerHTML = reviews.map(r => `
-        <div class="review-item" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.1);">
-            <div style="color:#FFD700; font-size:0.9rem; margin-bottom:5px;">${"★".repeat(r.rating)}</div>
-            <p style="color:#eee; font-size:0.9rem; font-style:italic;">"${r.text}"</p>
-            <div style="margin-top:10px; font-size:0.8rem; font-weight:bold; color:#ccc;">— ${r.name} <span style="font-weight:normal; font-size:0.7rem;">(${r.date})</span></div>
+        <div class="bg-white/5 p-4 rounded-xl border border-white/10 mb-3">
+            <div class="flex text-yellow-400 text-sm mb-1">${"★".repeat(r.rating)}</div>
+            <p class="text-gray-200 text-sm italic">"${r.text}"</p>
+            <div class="mt-2 font-bold text-xs text-white">— ${r.name} <span class="font-normal text-gray-500">(${r.date})</span></div>
         </div>
     `).join("");
 }
 
 function handleReviewSubmit(e) {
-    e.preventDefault(); // Mencegah reload halaman
+    e.preventDefault();
+    const name = document.getElementById("ulasan-nama").value;
+    const text = document.getElementById("ulasan-text").value;
+    const rating = document.getElementById("ulasan-rating").value;
+
+    if (!name || !text) return showNotif("Mohon lengkapi data ulasan.", "error");
+
+    // Masukkan ulasan baru ke array paling atas
+    reviews.unshift({ 
+        name, 
+        text, 
+        rating: parseInt(rating), 
+        date: new Date().toLocaleDateString('id-ID') 
+    });
     
-    const nameInput = document.getElementById("ulasan-nama");
-    const textInput = document.getElementById("ulasan-text");
-    const ratingInput = document.getElementById("ulasan-rating");
-
-    if (!nameInput || !textInput) return;
-
-    const newReview = {
-        name: nameInput.value,
-        text: textInput.value,
-        rating: parseInt(ratingInput.value),
-        date: new Date().toLocaleDateString('id-ID')
-    };
-
-    // Masukkan ke array (paling atas)
-    reviews.unshift(newReview);
     localStorage.setItem(STORAGE_REV_KEY, JSON.stringify(reviews));
-
-    // Reset form dan render ulang
+    
     document.getElementById("form-review").reset();
     renderReviews();
-    alert("Terima kasih! Ulasan Anda berhasil dikirim.");
+    showNotif("Ulasan berhasil dikirim!", "success");
 }
 
-/* ================= 4. CART & MODAL SYSTEM ================= */
+/* ================= 5. CONTACT FORM (FORMSPREE) ================= */
+// Fungsi untuk menangani pengiriman pesan di halaman Kontak
+function handleContactSubmit(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const data = new FormData(form);
+    
+    showNotif("Sedang mengirim pesan...", "info");
 
+    fetch(form.action, {
+        method: form.method,
+        body: data,
+        headers: {
+            'Accept': 'application/json'
+        }
+    }).then(response => {
+        if (response.ok) {
+            showNotif("Pesan berhasil terkirim!", "success");
+            form.reset();
+        } else {
+            response.json().then(data => {
+                if (Object.hasOwn(data, 'errors')) {
+                    showNotif(data["errors"].map(error => error["message"]).join(", "), "error");
+                } else {
+                    showNotif("Gagal mengirim pesan.", "error");
+                }
+            });
+        }
+    }).catch(error => {
+        showNotif("Terjadi kesalahan koneksi.", "error");
+    });
+}
+
+/* ================= 6. MODAL & CART SYSTEM ================= */
 let currentProduct = null;
 
 function openProductDetail(id) {
     currentProduct = db.find(p => p.id === id);
     if (!currentProduct) return;
-
+    
     const modal = document.getElementById("product-modal");
     const body = document.getElementById("product-detail-body");
     if (!modal) return;
@@ -167,31 +224,42 @@ function openProductDetail(id) {
     if (currentProduct.favorit) basePrice *= 0.8;
 
     body.innerHTML = `
-        <div style="display:flex; flex-wrap:wrap; gap:20px; color:#333;">
-            <div style="flex:1; min-width:250px;">
-                <img src="img/produk/${currentProduct.gambar}" style="width:100%; border-radius:10px; object-fit:cover;">
+        <div class="flex flex-col md:flex-row gap-6 text-gray-800">
+            <div class="w-full md:w-1/2 bg-gray-100 rounded-xl overflow-hidden aspect-square md:aspect-auto relative">
+                <img src="img/produk/${currentProduct.gambar}" class="w-full h-full object-cover">
             </div>
-            <div style="flex:1; min-width:250px;">
-                <h2 style="font-size:1.5rem; font-weight:bold;">${currentProduct.nama}</h2>
-                <div style="color:#004d7a; font-weight:bold; font-size:1.2rem; margin:10px 0;">${formatIDR(basePrice)}</div>
+            <div class="flex-1 flex flex-col justify-center">
+                <div class="mb-4">
+                    <span class="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded font-bold uppercase">${currentProduct.kategori}</span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold mt-2 leading-tight">${currentProduct.nama}</h2>
+                    <div class="text-blue-600 font-bold text-2xl mt-2">${formatIDR(basePrice)}</div>
+                </div>
                 
-                <label style="display:block; font-weight:bold; margin-bottom:5px;">Ukuran</label>
-                <select id="modal-ukuran" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px; margin-bottom:10px;" onchange="updateWarna()">
-                    <option value="">-- Pilih --</option>
-                    ${ukuranList.map(u => `<option value="${u}">${u}</option>`).join("")}
-                </select>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Pilih Ukuran</label>
+                        <select id="modal-ukuran" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-600 outline-none bg-white" onchange="updateWarna()">
+                            <option value="">-- Pilih Ukuran --</option>
+                            ${ukuranList.map(u => `<option value="${u}">${u}</option>`).join("")}
+                        </select>
+                    </div>
 
-                <label style="display:block; font-weight:bold; margin-bottom:5px;">Warna</label>
-                <select id="modal-warna" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px; margin-bottom:15px;" disabled>
-                    <option>Pilih ukuran dulu</option>
-                </select>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Pilih Warna</label>
+                        <select id="modal-warna" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-600 outline-none bg-gray-50 disabled:opacity-50" disabled>
+                            <option>Pilih ukuran dulu</option>
+                        </select>
+                    </div>
 
-                <label style="display:block; font-weight:bold; margin-bottom:5px;">Jumlah</label>
-                <div style="display:flex; gap:10px; margin-bottom:20px;">
-                     <input id="modal-qty" type="number" value="1" min="1" style="width:60px; text-align:center; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Jumlah</label>
+                        <input id="modal-qty" type="number" value="1" min="1" class="w-24 p-3 text-center border-2 border-gray-200 rounded-lg focus:border-blue-600 outline-none font-bold">
+                    </div>
                 </div>
 
-                <button onclick="addToCart()" style="width:100%; background:#004d7a; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">TAMBAH KERANJANG</button>
+                <button onclick="addToCart()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg transition transform active:scale-95 flex justify-center items-center gap-2">
+                    <i class="ph-fill ph-shopping-cart"></i> Masukkan Keranjang
+                </button>
             </div>
         </div>
     `;
@@ -201,186 +269,140 @@ function openProductDetail(id) {
 function updateWarna() {
     const ukuran = document.getElementById("modal-ukuran").value;
     const sel = document.getElementById("modal-warna");
-    if (!ukuran) { sel.disabled=true; return; }
+    if (!ukuran) { sel.disabled=true; sel.innerHTML="<option>Pilih ukuran dulu</option>"; return; }
     
     const vars = currentProduct.variasi.filter(v => v.ukuran === ukuran);
     sel.disabled = false;
-    sel.innerHTML = `<option value="">-- Pilih --</option>` + 
-        vars.map(v => `<option value="${v.warna}" ${v.stok<=0?'disabled':''}>${v.warna} ${v.stok<=0?'(Habis)':''}</option>`).join("");
+    sel.classList.remove("bg-gray-50"); sel.classList.add("bg-white");
+    sel.innerHTML = `<option value="">-- Pilih Warna --</option>` + vars.map(v => `<option value="${v.warna}" ${v.stok<=0?'disabled':''}>${v.warna} ${v.stok<=0?'(Habis)':''}</option>`).join("");
 }
 
 function addToCart() {
     const ukuran = document.getElementById("modal-ukuran").value;
     const warna = document.getElementById("modal-warna").value;
     const qty = parseInt(document.getElementById("modal-qty").value);
-
-    if (!ukuran || !warna) return alert("Mohon lengkapi pilihan ukuran dan warna.");
+    
+    if (!ukuran || !warna) return showNotif("Mohon pilih ukuran dan warna.", "error");
     
     const v = currentProduct.variasi.find(i => i.ukuran === ukuran && i.warna === warna);
     let price = v.harga; 
     if(currentProduct.favorit) price *= 0.8;
 
-    // Cek apakah produk sama persis sudah ada di cart
     const exist = cart.find(c => c.id === currentProduct.id && c.ukuran === ukuran && c.warna === warna);
-    if (exist) {
-        exist.qty += qty;
-    } else {
-        cart.push({ 
-            id: currentProduct.id, 
-            nama: currentProduct.nama, 
-            gambar: currentProduct.gambar, 
-            ukuran, 
-            warna, 
-            harga: price, 
-            qty 
-        });
-    }
+    if (exist) exist.qty += qty;
+    else cart.push({ id: currentProduct.id, nama: currentProduct.nama, gambar: currentProduct.gambar, ukuran, warna, harga: price, qty });
     
     saveCart();
-    closeProductModal();
-    alert("Berhasil masuk keranjang!");
+    document.getElementById("product-modal").classList.add("hidden");
+    showNotif("Berhasil masuk keranjang!", "success");
 }
-
-function closeProductModal() { document.getElementById("product-modal").classList.add("hidden"); }
-
-/* ================= 5. CART DRAWER & LOGIC ================= */
 
 function toggleCart() {
     const modal = document.getElementById("cart-modal");
     const body = document.getElementById("cart-modal-body");
-    if (!modal) return;
-    
     modal.classList.remove("hidden");
     
     if (!cart.length) {
-        body.innerHTML = `<p style="text-align:center; padding:20px; color:#888;">Keranjang kosong</p>`;
+        body.innerHTML = `<p class="text-center text-gray-500 py-10 italic">Keranjang Anda kosong</p>`;
         document.getElementById("cart-total-display").innerText = formatIDR(0);
         return;
     }
-
+    
     body.innerHTML = cart.map((c, i) => `
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:10px 0; color:#333;">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <img src="img/produk/${c.gambar}" style="width:40px; height:40px; object-fit:cover; border-radius:5px;">
-                <div>
-                    <div style="font-weight:bold; font-size:0.9rem;">${c.nama}</div>
-                    <div style="font-size:0.8rem; color:#666;">${c.ukuran}, ${c.warna} (x${c.qty})</div>
-                </div>
+        <div class="flex justify-between items-center border-b py-3">
+            <div class="flex items-center gap-3">
+                 <img src="img/produk/${c.gambar}" class="w-10 h-10 rounded object-cover">
+                 <div>
+                    <div class="font-bold text-sm text-gray-800">${c.nama}</div>
+                    <div class="text-xs text-gray-500">${c.ukuran}, ${c.warna} x${c.qty}</div>
+                 </div>
             </div>
-            <div style="text-align:right;">
-                <div style="font-weight:bold; color:#004d7a;">${formatIDR(c.harga * c.qty)}</div>
-                <button onclick="delItem(${i})" style="color:red; font-size:0.8rem; border:none; background:none; cursor:pointer;">Hapus</button>
+            <div class="text-right">
+                <div class="text-blue-700 font-bold text-sm">${formatIDR(c.harga * c.qty)}</div>
+                <button onclick="delItem(${i})" class="text-red-500 text-xs hover:underline">Hapus</button>
             </div>
         </div>
     `).join("");
-
+    
     document.getElementById("cart-total-display").innerText = formatIDR(cart.reduce((s, c) => s + c.harga * c.qty, 0));
 }
 
-function delItem(i) {
-    cart.splice(i, 1);
-    saveCart();
-    toggleCart(); // Refresh tampilan cart modal
-    if(document.getElementById("order-summary")) renderOrderSummary(); // Refresh checkout jika sedang dibuka
+function delItem(i) { 
+    cart.splice(i, 1); 
+    saveCart(); 
+    toggleCart(); 
+    if(document.getElementById("order-summary")) renderOrderSummary(); 
 }
 
 function closeCartModal() { document.getElementById("cart-modal").classList.add("hidden"); }
-
-function updateCartBadge() {
-    const total = cart.reduce((s,c) => s + c.qty, 0);
-    document.querySelectorAll(".fc-ultra-badge").forEach(e => e.innerText = total);
-}
+function closeProductModal() { document.getElementById("product-modal").classList.add("hidden"); }
+function updateCartBadge() { document.querySelectorAll(".fc-ultra-badge").forEach(e => e.innerText = cart.reduce((s,c)=>s+c.qty,0)); }
 
 function processCheckoutRedirect() {
-    if(!cart.length) return alert("Keranjang kosong!");
+    if(!cart.length) return showNotif("Keranjang Anda kosong!", "error");
     window.location.href = "pemesanan.html";
 }
 
-/* ================= 6. CHECKOUT PAGE LOGIC ================= */
-
+/* ================= 7. CHECKOUT LOGIC ================= */
 function renderOrderSummary() {
     const container = document.getElementById("order-summary");
     if (!container) return;
-
-    if (!cart.length) {
-        container.innerHTML = `<p style="text-align:center; color:#ccc;">Keranjang kosong.</p>`;
-        return;
-    }
+    if (!cart.length) { container.innerHTML = `<p class="text-center text-gray-400">Keranjang kosong.</p>`; return; }
     
-    const itemsHtml = cart.map(c => `
-        <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding:10px 0;">
+    container.innerHTML = cart.map(c => `
+        <div class="flex justify-between border-b border-white/10 py-3">
             <div>
-                <div style="font-weight:bold; color:white;">${c.nama}</div>
-                <div style="font-size:0.8rem; color:#aaa;">${c.ukuran}, ${c.warna} x${c.qty}</div>
+                <div class="font-bold text-white text-sm">${c.nama}</div>
+                <div class="text-xs text-gray-400">${c.ukuran}, ${c.warna} x${c.qty}</div>
             </div>
-            <div style="font-weight:bold; color:#FFD700;">${formatIDR(c.harga * c.qty)}</div>
+            <div class="font-bold text-yellow-500 text-sm">${formatIDR(c.harga * c.qty)}</div>
         </div>
-    `).join("");
-
-    const total = cart.reduce((s,c) => s + c.harga * c.qty, 0);
-
-    container.innerHTML = itemsHtml + `
-        <div style="display:flex; justify-content:space-between; padding-top:15px; margin-top:10px; border-top:1px solid rgba(255,255,255,0.3); font-size:1.2rem; font-weight:bold;">
-            <span style="color:white;">Total</span>
-            <span style="color:#FFD700;">${formatIDR(total)}</span>
-        </div>`;
+    `).join("") + `<div class="flex justify-between pt-4 mt-2 border-t border-white/20 font-bold text-lg"><span class="text-white">Total</span><span class="text-yellow-500">${formatIDR(cart.reduce((s,c)=>s+c.harga*c.qty,0))}</span></div>`;
 }
 
 function completeOrder(e) {
     e.preventDefault();
-    if (!cart.length) return alert("Keranjang kosong.");
+    if (!cart.length) return showNotif("Keranjang kosong!", "error");
     
     const name = document.getElementById("cust-name").value;
     const wa = document.getElementById("cust-wa").value;
     const addr = document.getElementById("cust-address").value;
     
-    if(!name || !wa || !addr) return alert("Harap lengkapi data diri Anda.");
+    if(!name || !wa || !addr) return showNotif("Harap lengkapi semua data pengiriman.", "error");
 
-    const waNumber = "628976272428"; // Nomor Admin
+    const msg = `Halo Admin MZ Collection,%0A%0ASaya ingin memesan:%0A` + 
+        cart.map(c => `- ${c.nama} (${c.ukuran}, ${c.warna}) x${c.qty}`).join("%0A") + 
+        `%0A%0ATotal: ${formatIDR(cart.reduce((s,c)=>s+c.harga*c.qty,0))}%0A%0ANama: ${name}%0AWA: ${wa}%0AAlamat: ${addr}`;
     
-    let msg = `Halo Admin MZ Collection,%0A%0ASaya ingin memesan produk:%0A`;
-    cart.forEach(c => {
-        msg += `- ${c.nama} (${c.ukuran}, ${c.warna}) x${c.qty} = ${formatIDR(c.harga * c.qty)}%0A`;
-    });
-
-    const total = cart.reduce((s,c) => s + c.harga * c.qty, 0);
-    msg += `%0A*Total Pembayaran: ${formatIDR(total)}*%0A`;
-    msg += `%0A---------------------%0A`;
-    msg += `Nama: ${name}%0A`;
-    msg += `No WA: ${wa}%0A`;
-    msg += `Alamat: ${addr}%0A`;
-    msg += `%0AMohon info ongkos kirimnya. Terima kasih!`;
-    
-    window.open(`https://wa.me/${waNumber}?text=${msg}`, "_blank");
+    window.open(`https://wa.me/628976272428?text=${msg}`, "_blank");
 }
 
-/* ================= 7. INITIALIZATION ================= */
+/* ================= 8. INIT (EVENT LISTENERS) ================= */
 window.addEventListener("load", () => {
-    // Render Katalog jika ada container
+    // 1. Render Halaman Produk
     if(document.getElementById("product-container")) renderProducts('all');
-    
-    // Render Featured
     if(document.getElementById("featured-container")) renderFeatured();
     
-    // Render Reviews
+    // 2. Render Ulasan & Pasang Event Listenernya
     if(document.getElementById("review-list")) renderReviews();
-    
-    // Render Summary Checkout
+    const reviewForm = document.getElementById("form-review");
+    if(reviewForm) {
+        reviewForm.addEventListener("submit", handleReviewSubmit);
+    }
+
+    // 3. Render Summary Checkout & Pasang Event Listenernya
     if(document.getElementById("order-summary")) renderOrderSummary();
+    const checkoutForm = document.getElementById("form-checkout");
+    if(checkoutForm) {
+        checkoutForm.addEventListener("submit", completeOrder);
+    }
 
-    // Update Badge Cart
+    // 4. CONTACT FORM LISTENER (PENTING)
+    // Pastikan di HTML kontak ada <form id="contact-form" action="https://formspree.io/f/ID_FORMSPREE_KAMU" method="POST">
+    const contactForm = document.getElementById("contact-form");
+    if(contactForm) {
+        contactForm.addEventListener("submit", handleContactSubmit);
+    }
+
     updateCartBadge();
-
-    // Event Listener untuk Form Ulasan (Jika ada)
-    const formReview = document.getElementById("form-review");
-    if(formReview) {
-        formReview.addEventListener("submit", handleReviewSubmit);
-    }
-
-    // Event Listener untuk Form Checkout (Jika ada)
-    const formCheckout = document.getElementById("form-checkout");
-    if(formCheckout) {
-        formCheckout.addEventListener("submit", completeOrder);
-    }
 });
-      
