@@ -1,6 +1,6 @@
-/* js/script.js — FINAL + RESET CART + STOCK MANAGEMENT */
+/* js/script.js — FINAL FIX (STOK + KATALOG MUNCUL) */
 
-/* ================= 1. CUSTOM NOTIFICATION SYSTEM (TIDAK DIUBAH) ================= */
+/* ================= 1. CUSTOM NOTIFICATION SYSTEM ================= */
 function showNotif(message, type = 'success') {
     const existing = document.getElementById('mz-notif');
     if (existing) existing.remove();
@@ -35,20 +35,22 @@ function showNotif(message, type = 'success') {
     }, 3000);
 }
 
-/* ================= 2. INIT & DATA HANDLING (DITAMBAH LOGIKA DB STOK) ================= */
-const STORAGE_DB_KEY = "dbProduk_vStockFinal"; // Key database
+/* ================= 2. INIT & DATA HANDLING (FIXED LOGIC) ================= */
+const STORAGE_DB_KEY = "dbProduk_vStockFixed_2"; // Saya ganti namanya biar me-reset data kosong di HP abang
 const STORAGE_CART_KEY = "mz_cart";
 const STORAGE_REV_KEY = "mz_reviews";
 
-// [MODIFIKASI] Load Database agar Stok Tersimpan
 let db;
 const localData = localStorage.getItem(STORAGE_DB_KEY);
 
-if (localData) {
-    // Jika sudah ada data di HP (stok sudah pernah berkurang), pakai itu
+// [PERBAIKAN LOGIKA]
+// Cek dulu: Apakah ada data lokal? DAN apakah datanya ada isinya (panjang > 0)?
+if (localData && JSON.parse(localData).length > 0) {
+    // Jika ada dan valid, pakai data lokal (yang menyimpan sisa stok)
     db = JSON.parse(localData);
 } else {
-    // Jika belum, ambil dari file data awal
+    // Jika tidak ada atau KOSONG (penyebab error sebelumnya), AMBIL DARI FILE db.js
+    // Pastikan variabel 'produk' dari db.js terbaca
     db = typeof produk !== "undefined" ? produk : [];
     localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(db));
 }
@@ -65,19 +67,15 @@ function saveCart() {
     updateCartBadge();
 }
 
-// Fungsi Simpan Perubahan Stok ke HP
 function saveDB() {
     localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(db));
 }
 
-/* ================= 3. RENDER PRODUCTS (DITAMBAH VISUAL HABIS) ================= */
+/* ================= 3. RENDER PRODUCTS ================= */
 function createCardHTML(p) {
     const lowestPrice = Math.min(...p.variasi.map(v => v.harga));
-    
-    // Cek apakah semua variasi stoknya 0 atau kurang
     const isHabis = p.variasi.every(v => v.stok <= 0);
     
-    // [MODIFIKASI] Badge Habis lebih terlihat
     const badgeHabis = isHabis 
         ? `<div class="absolute inset-0 bg-black/60 z-20 flex items-center justify-center">
              <div class="bg-red-600 text-white font-bold px-4 py-2 rounded border-2 border-white text-sm tracking-widest shadow-xl transform -rotate-12">
@@ -98,7 +96,6 @@ function createCardHTML(p) {
         priceHtml = `<span class="text-yellow-400 font-bold text-lg">${formatIDR(lowestPrice)}</span>`;
     }
 
-    // [MODIFIKASI] Tambahkan grayscale jika habis dan disable klik
     return `
     <div class="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-yellow-500/50 transition group flex flex-col h-full relative">
         ${badgeHabis}
@@ -149,7 +146,7 @@ function filterProducts(cat) {
     renderProducts(cat);
 }
 
-/* ================= 4. REVIEW SYSTEM (TIDAK DIUBAH) ================= */
+/* ================= 4. REVIEW SYSTEM ================= */
 function renderReviews() {
     const container = document.getElementById("review-list");
     if (!container) return;
@@ -190,7 +187,7 @@ function handleReviewSubmit(e) {
     showNotif("Ulasan berhasil dikirim!", "success");
 }
 
-/* ================= 5. CONTACT FORM (TIDAK DIUBAH) ================= */
+/* ================= 5. CONTACT FORM ================= */
 async function handleContactSubmit(e) {
     e.preventDefault();
     const form = e.target;
@@ -222,11 +219,10 @@ async function handleContactSubmit(e) {
     }
 }
 
-/* ================= 6. MODAL & CART SYSTEM (DITAMBAH TAMPILAN STOK) ================= */
+/* ================= 6. MODAL & CART SYSTEM ================= */
 let currentProduct = null;
 
 function openProductDetail(id) {
-    // Cari produk dari database (yang stoknya realtime)
     currentProduct = db.find(p => p.id === id);
     if (!currentProduct) return;
     
@@ -238,7 +234,6 @@ function openProductDetail(id) {
     let basePrice = Math.min(...currentProduct.variasi.map(v => v.harga));
     if (currentProduct.favorit) basePrice *= 0.8;
 
-    // [MODIFIKASI] Tambahkan tampilan Sisa Stok di HTML Modal
     body.innerHTML = `
         <div class="flex flex-col md:flex-row gap-6 text-gray-800">
             <div class="w-full md:w-1/2 bg-gray-100 rounded-xl overflow-hidden aspect-square md:aspect-auto relative">
@@ -304,17 +299,15 @@ function updateWarna() {
     sel.disabled = false;
     sel.classList.remove("bg-gray-50"); sel.classList.add("bg-white");
     
-    // [MODIFIKASI] Disable opsi warna yang stoknya 0
     sel.innerHTML = `<option value="">-- Pilih Warna --</option>` + 
         vars.map(v => `<option value="${v.warna}" ${v.stok<=0?'disabled':''}>${v.warna} ${v.stok<=0?'(Habis)':''}</option>`).join("");
 
-    // [MODIFIKASI] Update angka stok saat warna dipilih
     sel.onchange = function() {
         const selectedWarna = this.value;
         const variant = currentProduct.variasi.find(v => v.ukuran === ukuran && v.warna === selectedWarna);
         if (variant) {
             stokDisplay.innerText = variant.stok + " pcs";
-            document.getElementById("modal-qty").setAttribute("max", variant.stok); // Batasi input max
+            document.getElementById("modal-qty").setAttribute("max", variant.stok); 
         } else {
             stokDisplay.innerText = "-";
         }
@@ -330,7 +323,6 @@ function addToCart() {
     
     const variant = currentProduct.variasi.find(i => i.ukuran === ukuran && i.warna === warna);
 
-    // [MODIFIKASI] Validasi Stok
     if (variant.stok <= 0) return showNotif("Maaf, stok varian ini sudah habis.", "error");
     if (qty > variant.stok) return showNotif(`Stok tidak cukup. Sisa: ${variant.stok}`, "error");
 
@@ -339,7 +331,6 @@ function addToCart() {
 
     const exist = cart.find(c => c.id === currentProduct.id && c.ukuran === ukuran && c.warna === warna);
     if (exist) {
-        // Validasi juga untuk barang yang sudah ada di cart
         if (exist.qty + qty > variant.stok) return showNotif(`Melebihi stok! Anda sudah punya ${exist.qty} di keranjang.`, "error");
         exist.qty += qty;
     } else {
@@ -391,7 +382,7 @@ function processCheckoutRedirect() {
     window.location.href = "pemesanan.html";
 }
 
-/* ================= 7. CHECKOUT LOGIC (DITAMBAH PENGURANGAN STOK) ================= */
+/* ================= 7. CHECKOUT LOGIC ================= */
 function renderOrderSummary() {
     const container = document.getElementById("order-summary");
     if (!container) return;
@@ -408,7 +399,6 @@ function renderOrderSummary() {
     `).join("") + `<div class="flex justify-between pt-4 mt-2 border-t border-white/20 font-bold text-lg"><span class="text-white">Total</span><span class="text-yellow-500">${formatIDR(cart.reduce((s,c)=>s+c.harga*c.qty,0))}</span></div>`;
 }
 
-// [MODIFIKASI] Reset Cart + Kurangi Stok
 function completeOrder(e) {
     e.preventDefault();
     if (!cart.length) return showNotif("Keranjang kosong!", "error");
@@ -419,19 +409,33 @@ function completeOrder(e) {
     
     if(!name || !wa || !addr) return showNotif("Harap lengkapi semua data pengiriman.", "error");
 
-    // --- 1. PROSES PENGURANGAN STOK DI DB ---
+    // KURANGI STOK
     cart.forEach(cartItem => {
         const productInDB = db.find(p => p.id === cartItem.id);
         if (productInDB) {
             const variantInDB = productInDB.variasi.find(v => v.ukuran === cartItem.ukuran && v.warna === cartItem.warna);
             if (variantInDB) {
-                // Kurangi stok (minimal 0, jangan minus)
                 variantInDB.stok = Math.max(0, variantInDB.stok - cartItem.qty);
             }
         }
     });
-    saveDB(); // Simpan perubahan stok ke memori HP
-    // ----------------------------------------
+    saveDB();
 
-    // Format Pesan WhatsApp
-    const msg = `Halo Admin MZ Col
+    const msg = `Halo Admin MZ Collection,%0A%0ASaya ingin memesan:%0A` + 
+        cart.map(c => `- ${c.nama} (${c.ukuran}, ${c.warna}) x${c.qty}`).join("%0A") + 
+        `%0A%0ATotal: ${formatIDR(cart.reduce((s,c)=>s+c.harga*c.qty,0))}%0A%0ANama: ${name}%0AWA: ${wa}%0AAlamat: ${addr}`;
+    
+    window.open(`https://wa.me/628976272428?text=${msg}`, "_blank");
+
+    cart = []; 
+    saveCart(); 
+    renderOrderSummary(); 
+    document.getElementById("form-checkout").reset(); 
+
+    showNotif("Pesanan diproses! Stok telah diperbarui.", "success");
+    setTimeout(() => { window.location.href = "index.html"; }, 1000);
+}
+
+/* ================= 8. INIT ================= */
+window.addEventListener("load", () => {
+    if(document.getElementById("pro
