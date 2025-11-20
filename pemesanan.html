@@ -3,167 +3,169 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>MZ Collection — Konfirmasi Pemesanan</title>
+    <title>MZ Collection — Checkout</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        /* Override CSS untuk Order Summary yang di-generate JS */
+        /* Karena JS men-generate class 'text-gray-600', kita paksa jadi terang agar terbaca */
+        #order-summary .text-gray-600 {
+            color: #cbd5e1 !important; /* Slate-300 */
+        }
+        #order-summary .font-semibold {
+            color: #fff !important;
+        }
+        #order-summary .border-b {
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+    </style>
   </head>
-  <body class="bg-gray-50 text-gray-800">
-    <header class="bg-blue-900 text-white sticky top-0 z-50 shadow">
-      <div
-        class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between"
-      >
+  
+  <body class="antialiased text-white">
+    
+    <header class="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-md">
+      <div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <i class="ph ph-shopping-bag text-3xl"></i>
-          <a href="index.html" class="font-bold text-2xl tracking-wide"
-            >MZ COLLECTION</a
+          <i class="ph ph-shopping-bag text-3xl text-yellow-500"></i>
+          <a href="index.html" class="font-bold text-2xl tracking-wide text-white"
+            >MZ <span class="text-yellow-500">LUXURY</span></a
           >
         </div>
 
-        <nav class="hidden md:flex gap-6 items-center">
-          <a href="index.html" class="hover:text-blue-300">Beranda</a>
-          <a href="katalog.html" class="hover:text-blue-300">Katalog</a>
-          <a href="kontak.html" class="hover:text-blue-300">Kontak</a>
-          <a href="pemesanan.html" class="text-blue-300 font-semibold"
-            >Pemesanan</a
-          >
-
-          <button onclick="openCartModal()" class="relative">
-            <i class="ph ph-shopping-cart text-2xl"></i>
-            <span
-              id="cart-count"
-              class="absolute -top-2 -right-3 bg-red-500 text-white rounded-full text-xs px-2"
-              >0</span
-            >
-          </button>
+        <nav class="hidden md:flex gap-6 items-center text-sm font-medium tracking-wider">
+          <a href="index.html" class="hover:text-yellow-400 transition">BERANDA</a>
+          <a href="katalog.html" class="hover:text-yellow-400 transition">KOLEKSI</a>
+          <a href="kontak.html" class="hover:text-yellow-400 transition">KONTAK</a>
         </nav>
 
-        <button class="md:hidden" onclick="toggleMenu()">
+        <button class="md:hidden text-white" onclick="toggleMenu()">
           <i id="menu-icon" class="ph ph-list text-3xl"></i>
         </button>
       </div>
 
-      <nav id="mobile-menu" class="hidden md:hidden bg-blue-800 pb-4">
-        <a
-          href="index.html"
-          class="block py-2 text-center text-white hover:text-blue-300"
-          >Beranda</a
-        >
-        <a
-          href="katalog.html"
-          class="block py-2 text-center text-white hover:text-blue-300"
-          >Katalog</a
-        >
-        <a
-          href="kontak.html"
-          class="block py-2 text-center text-white hover:text-blue-300"
-          >Kontak</a
-        >
-        <a
-          href="pemesanan.html"
-          class="block py-2 text-center text-blue-300 font-semibold"
-          >Pemesanan</a
-        >
+      <nav id="mobile-menu" class="hidden md:hidden bg-black/90 border-t border-white/10 pb-4 absolute w-full">
+        <a href="index.html" class="block py-3 text-center text-white hover:text-yellow-400">Beranda</a>
+        <a href="katalog.html" class="block py-3 text-center text-white hover:text-yellow-400">Koleksi</a>
+        <a href="kontak.html" class="block py-3 text-center text-white hover:text-yellow-400">Kontak</a>
       </nav>
     </header>
 
-    <main class="max-w-4xl mx-auto px-5 py-12">
-      <h1 class="text-3xl font-bold mb-6">Konfirmasi Pesanan</h1>
+    <main class="max-w-3xl mx-auto px-5 py-12 min-h-screen">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-yellow-500 mb-2">Konfirmasi Pesanan</h1>
+        <p class="text-gray-300">Lengkapi data di bawah ini untuk memproses pesanan via WhatsApp.</p>
+      </div>
 
-      <div id="order-summary" class="bg-white p-6 rounded-xl shadow mb-6"></div>
+      <div class="bg-white/5 border border-white/10 backdrop-blur-sm p-6 rounded-2xl shadow-xl mb-8 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1 h-full bg-yellow-500"></div>
+        <h2 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Ringkasan Produk</h2>
+        <div id="order-summary">
+            </div>
+      </div>
 
       <form
         id="checkout-form"
         onsubmit="completeOrder(event)"
-        class="bg-white p-6 rounded-xl shadow"
+        class="bg-white/5 border border-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-xl"
       >
-        <h2 class="font-semibold mb-4">Data Pemesan</h2>
+        <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+            <i class="ph-fill ph-user-circle text-yellow-500"></i> Data Pengiriman
+        </h2>
 
-        <label class="block mb-4">
-          <span class="font-medium">Nama Lengkap</span>
-          <input
-            id="cust-name"
-            required
-            class="w-full p-3 border rounded mt-1"
-          />
-        </label>
+        <div class="space-y-5">
+            <label class="block">
+            <span class="font-bold text-sm text-gray-300 ml-1">Nama Lengkap</span>
+            <input
+                id="cust-name"
+                required
+                type="text"
+                placeholder="Contoh: Mizan Zulmi"
+                class="w-full mt-2 p-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition"
+            />
+            </label>
 
-        <label class="block mb-4">
-          <span class="font-medium">Nomor WhatsApp</span>
-          <input
-            id="cust-wa"
-            required
-            class="w-full p-3 border rounded mt-1"
-            placeholder="08xx..."
-          />
-        </label>
+            <label class="block">
+            <span class="font-bold text-sm text-gray-300 ml-1">Nomor WhatsApp</span>
+            <input
+                id="cust-wa"
+                required
+                type="tel"
+                placeholder="08xx xxxx xxxx"
+                class="w-full mt-2 p-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition"
+            />
+            </label>
 
-        <label class="block mb-4">
-          <span class="font-medium">Alamat Lengkap</span>
-          <textarea
-            id="cust-address"
-            required
-            class="w-full p-3 border rounded mt-1"
-            rows="3"
-          ></textarea>
-        </label>
+            <label class="block">
+            <span class="font-bold text-sm text-gray-300 ml-1">Alamat Lengkap</span>
+            <textarea
+                id="cust-address"
+                required
+                rows="3"
+                placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kode Pos..."
+                class="w-full mt-2 p-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition resize-none"
+            ></textarea>
+            </label>
+        </div>
 
-        <div class="flex gap-3 mt-4">
-          <button
-            type="submit"
-            class="bg-green-600 px-5 py-3 text-white rounded hover:bg-green-700"
-          >
-            Kirim ke WhatsApp
-          </button>
-          <a
-            href="katalog.html"
-            class="px-5 py-3 border rounded hover:bg-gray-100"
-            >Kembali ke Katalog</a
-          >
+        <div class="flex flex-col md:flex-row gap-4 mt-8">
+            <a
+                href="katalog.html"
+                class="flex-1 px-5 py-3 border border-white/20 rounded-lg text-center text-gray-300 hover:bg-white/10 hover:text-white transition font-semibold"
+            >
+                Kembali Belanja
+            </a>
+            <button
+                type="submit"
+                class="flex-1 bg-green-600 px-5 py-3 text-white rounded-lg font-bold hover:bg-green-700 shadow-lg shadow-green-900/50 flex items-center justify-center gap-2 transition transform hover:-translate-y-1"
+            >
+                <i class="ph-bold ph-whatsapp-logo text-xl"></i> Proses ke WhatsApp
+            </button>
         </div>
       </form>
     </main>
 
-    <div
-      id="cart-modal"
-      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
-    >
-      <div
-        class="bg-white w-full max-w-2xl rounded-xl overflow-hidden shadow-lg transform transition-all scale-95 m-4"
-      >
-        <div class="flex items-center justify-between p-4 border-b">
-          <h3 class="font-bold text-lg">Keranjang Anda</h3>
-          <button
-            onclick="closeCartModal()"
-            class="text-gray-600 hover:text-gray-900"
-          >
-            <i class="ph ph-x text-2xl"></i>
-          </button>
+    <footer class="bg-black/40 border-t border-white/10 text-white py-8 mt-10 backdrop-blur-lg">
+        <div class="max-w-7xl mx-auto text-center">
+            <h3 class="text-xl font-bold tracking-widest text-yellow-500">MZ COLLECTION</h3>
+            <p class="text-gray-500 text-sm mt-2">© 2025 All Rights Reserved.</p>
         </div>
-        <div id="cart-modal-body" class="p-4 max-h-80 overflow-auto"></div>
-        <div class="p-4 border-t flex items-center justify-between gap-4">
-          <div>
-            <div class="text-sm text-gray-500">Total</div>
-            <div id="cart-total" class="font-bold text-lg">Rp 0</div>
-          </div>
-          <div class="flex gap-3">
-            <button
-              onclick="clearCart()"
-              class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              Kosongkan
-            </button>
-            <button
-              onclick="checkoutFromModal()"
-              class="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
-            >
-              Checkout
-            </button>
-          </div>
+    </footer>
+
+    <div class="fc-ultra-container" onclick="openCartModal()">
+        <div class="fc-ultra">
+            <div class="fc-ultra-ring"></div>
+            <span class="fc-ultra-icon">🛒</span>
+            <div class="fc-ultra-badge">0</div>
         </div>
-      </div>
     </div>
+
+    <div id="cart-modal" class="hidden fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center p-5 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-fadeIn relative text-gray-800">
+            <h2 class="text-2xl font-bold mb-4 border-b pb-2">Keranjang Anda</h2>
+            
+            <div id="cart-modal-body" class="max-h-[50vh] overflow-y-auto mb-4 pr-2 custom-scrollbar">
+                </div>
+
+            <div class="flex justify-between items-center text-lg font-bold mb-6">
+                <span>Total:</span>
+                <span id="cart-total-display" class="text-blue-600">Rp 0</span>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeCartModal()" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-600 font-semibold hover:bg-gray-50 transition">Tutup</button>
+                </div>
+        </div>
+    </div>
+
+    <script>
+      function toggleMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+      }
+    </script>
 
     <script src="js/db.js"></script>
     <script src="js/script.js"></script>
