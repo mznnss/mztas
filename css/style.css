@@ -1,32 +1,25 @@
 /* ==========================================================================
-   CSS FINAL: LUXURY BLUE MERGED
+   CSS FINAL: REVISI (FIX LAYOUT BERANTAKAN)
    ========================================================================== */
 
 :root {
     --blue-deep: #051937;
     --blue-mid: #004d7a;
-    --gold-accent: #D4AF37; /* Emas Premium */
+    --gold-accent: #D4AF37;
     --glass-bg: rgba(255, 255, 255, 0.1);
     --glass-border: rgba(255, 255, 255, 0.15);
 }
 
-/* 1. BODY & LAYOUT (PENTING: Agar Footer Tidak Mengambang) */
+/* 1. BODY & LAYOUT (SAYA KEMBALIKAN KE NORMAL) */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid));
     color: white;
     margin: 0;
     padding: 0;
-    /* Setup Flexbox agar footer selalu di bawah */
     min-height: 100vh;
-    display: flex;
-    flex-direction: column; 
-}
-
-/* Pastikan semua konten website kamu dibungkus tag <main> agar footer terdorong ke bawah */
-main {
-    flex: 1;
-    width: 100%;
+    /* HAPUS display: flex disini supaya layout tidak gepeng */
+    overflow-x: hidden; /* Mencegah scroll ke samping */
 }
 
 /* Utilities */
@@ -34,6 +27,230 @@ main {
 .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
 
+/* ==========================================================================
+   2. HERO SECTION FIX (PENTING: BIAR GAK MEPET KIRI)
+   ========================================================================== */
+/* Tambahkan class ini di HTML pembungkus paling luar (container) jika belum ada */
+.container, main {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Hero Section di HP */
+@media (max-width: 768px) {
+    /* Memaksa konten Hero agar full width dan rapi */
+    header, .hero-section, .banner {
+        display: flex;
+        flex-direction: column;
+        text-align: center !important;
+        align-items: center !important;
+        width: 100%;
+        padding-top: 20px;
+    }
+    
+    /* Memperbaiki Statistik (1.2k, 4.9) agar menyamping, bukan vertikal panjang */
+    .stats-container, .hero-stats {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+    
+    /* Tombol Belanja Sekarang di tengah */
+    .btn-cta, button {
+        margin: 20px auto;
+    }
+}
+
+/* ==========================================================================
+   3. PRODUCT GRID (Layout Tas)
+   ========================================================================== */
+.products-grid {
+    display: grid;
+    /* Responsive Grid: Otomatis turun ke bawah di HP */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* 160px biar muat 2 kolom di HP */
+    gap: 15px;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Tampilan Tablet/Desktop: Kolom lebih lebar */
+@media (min-width: 769px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+    }
+}
+
+.product-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    padding: 10px;
+    transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.product-image {
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Kotak Sempurna */
+    border-radius: 10px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    background-color: #0f2027;
+}
+
+.product-title {
+    font-size: 1rem;
+    margin: 5px 0;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-category {
+    font-size: 0.7rem;
+    color: #ccc;
+    text-transform: uppercase;
+}
+
+.price-wrapper {
+    margin-top: auto; /* Dorong harga ke bawah */
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.price-original {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 0.8rem;
+}
+
+.price-final {
+    color: var(--gold-accent);
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.discount-tag {
+    background: #ff4757;
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+/* ==========================================================================
+   4. ULTRA FLOATING CART (Fixed di Pojok Kanan Bawah)
+   ========================================================================== */
+.fc-ultra-container {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 9999;
+    cursor: pointer;
+}
+
+.fc-ultra {
+    width: 60px; 
+    height: 60px;
+    background: rgba(5, 25, 55, 0.8); /* Latar agak gelap biar kelihatan */
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Glow Biru Terang */
+    box-shadow: 0 0 15px rgba(0, 125, 255, 0.8), 
+                0 0 25px rgba(0, 195, 255, 0.4);
+    
+    animation: floatUltra 4s ease-in-out infinite;
+}
+
+.fc-ultra-icon {
+    font-size: 26px;
+    color: white;
+}
+
+.fc-ultra-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #ff004e;
+    padding: 3px 7px;
+    font-size: 11px;
+    border-radius: 50px;
+    color: white;
+    font-weight: bold;
+    border: 1px solid white;
+}
+
+@keyframes floatUltra {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); } 
+}
+
+/* ==========================================================================
+   5. FILTER CATEGORY
+   ========================================================================== */
+.filter-container {
+    display: flex;
+    justify-content: center; /* Tengah */
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0;
+    padding: 0 10px;
+}
+
+.filter-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    backdrop-filter: blur(5px);
+}
+
+.filter-btn.active, .filter-btn:hover {
+    background: var(--gold-accent);
+    color: #051937;
+    border-color: var(--gold-accent);
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   6. FOOTER FIX (Biar rapi)
+   ========================================================================== */
+footer {
+    background: rgba(0,0,0,0.2);
+    padding: 20px;
+    text-align: center;
+    margin-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
 /* ==========================================================================
    2. ULTRA PREMIUM FLOATING CART (Gaya Kode Lama - Lebih Mewah)
    ========================================================================== */
@@ -263,3 +480,4 @@ main {
         font-size: 14px;
     }
 }
+
