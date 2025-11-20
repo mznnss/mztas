@@ -7,18 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="css/style.css" />
-    <style>
-        #order-summary .text-gray-600 { color: #cbd5e1 !important; }
-        #order-summary .font-semibold { color: #fff !important; }
-        #order-summary .border-b { border-color: rgba(255,255,255,0.1) !important; }
-    </style>
   </head>
-  <body class="antialiased text-white">
+  
+  <body class="antialiased text-white bg-black flex flex-col min-h-screen">
     
     <header class="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-md">
       <div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <i class="ph ph-shopping-bag text-3xl text-yellow-500"></i>
+          <i class="ph-fill ph-shopping-bag text-3xl text-yellow-500"></i>
           <a href="index.html" class="font-bold text-2xl tracking-wide text-white">MZ <span class="text-yellow-500">LUXURY</span></a>
         </div>
         <nav class="hidden md:flex gap-8 items-center text-sm font-bold tracking-wider">
@@ -37,38 +33,86 @@
       </nav>
     </header>
 
-    <main class="max-w-3xl mx-auto px-5 py-12 min-h-screen">
+    <main class="max-w-3xl mx-auto px-5 py-12 flex-grow w-full">
       <div class="text-center mb-8">
         <h1 class="text-3xl md:text-4xl font-bold text-yellow-500 mb-2">Konfirmasi Pesanan</h1>
-        <p class="text-gray-300">Lengkapi data untuk memproses via WhatsApp.</p>
+        <p class="text-gray-300">Periksa kembali pesanan Anda sebelum lanjut ke WhatsApp.</p>
       </div>
+
       <div class="bg-white/5 border border-white/10 backdrop-blur-sm p-6 rounded-2xl shadow-xl mb-8 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-1 h-full bg-yellow-500"></div>
-        <h2 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Ringkasan</h2>
-        <div id="order-summary"></div>
-      </div>
-      <form id="checkout-form" onsubmit="completeOrder(event)" class="bg-white/5 border border-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-xl">
-        <h2 class="text-xl font-bold mb-6">Data Pengiriman</h2>
-        <div class="space-y-5">
-            <input id="cust-name" required type="text" placeholder="Nama Lengkap" class="w-full p-3 bg-black/30 border border-white/20 rounded-lg text-white outline-none focus:border-yellow-500"/>
-            <input id="cust-wa" required type="tel" placeholder="Nomor WhatsApp" class="w-full p-3 bg-black/30 border border-white/20 rounded-lg text-white outline-none focus:border-yellow-500"/>
-            <textarea id="cust-address" required rows="3" placeholder="Alamat Lengkap" class="w-full p-3 bg-black/30 border border-white/20 rounded-lg text-white outline-none focus:border-yellow-500"></textarea>
+        <h2 class="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-white">Ringkasan Produk</h2>
+        <div id="order-summary">
+            <p class="text-center text-gray-400 italic py-4">Memuat data keranjang...</p>
         </div>
-        <div class="flex flex-col md:flex-row gap-4 mt-8">
-            <a href="katalog.html" class="flex-1 px-5 py-3 border border-white/20 rounded-lg text-center text-gray-300 hover:bg-white/10">Kembali</a>
-            <button type="submit" class="flex-1 bg-green-600 px-5 py-3 text-white rounded-lg font-bold hover:bg-green-700 shadow-lg flex items-center justify-center gap-2"><i class="ph-bold ph-whatsapp-logo text-xl"></i> WhatsApp</button>
+      </div>
+
+      <form id="checkout-form" onsubmit="completeOrder(event)" class="bg-white/5 border border-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-xl">
+        <h2 class="text-xl font-bold mb-6 text-white">Data Pengiriman</h2>
+        <div class="space-y-5">
+            <div>
+                <label class="block text-xs text-gray-400 mb-1 ml-1">Nama Lengkap</label>
+                <input id="cust-name" required type="text" placeholder="Contoh: Budi Santoso" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white outline-none focus:border-yellow-500 transition"/>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1 ml-1">Nomor WhatsApp</label>
+                <input id="cust-wa" required type="tel" placeholder="Contoh: 0812xxx" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white outline-none focus:border-yellow-500 transition"/>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1 ml-1">Alamat Lengkap</label>
+                <textarea id="cust-address" required rows="3" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan..." class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white outline-none focus:border-yellow-500 transition"></textarea>
+            </div>
+        </div>
+
+        <div class="flex gap-4 mt-8">
+            <a href="katalog.html" class="flex-1 py-3 border border-white/20 rounded-lg text-center text-gray-300 hover:bg-white/10 hover:text-white transition font-bold">
+                Kembali Belanja
+            </a>
+            <button type="submit" class="flex-1 bg-green-600 py-3 text-white rounded-lg font-bold hover:bg-green-700 shadow-lg flex items-center justify-center gap-2 transition transform active:scale-95">
+                <i class="ph-bold ph-whatsapp-logo text-xl"></i> Kirim WhatsApp
+            </button>
         </div>
       </form>
     </main>
 
-    <footer class="bg-black/40 border-t border-white/10 text-white py-8 mt-10 backdrop-blur-lg"><div class="max-w-7xl mx-auto text-center"><h3 class="text-xl font-bold tracking-widest text-yellow-500">MZ COLLECTION</h3><p class="text-gray-500 text-sm mt-2">© 2025 All Rights Reserved.</p></div></footer>
+    <footer class="bg-black/40 border-t border-white/10 text-white py-8 mt-auto backdrop-blur-lg">
+        <div class="max-w-7xl mx-auto text-center">
+            <h3 class="text-xl font-bold tracking-widest text-yellow-500">MZ COLLECTION</h3>
+            <p class="text-gray-500 text-sm mt-2">© 2025 All Rights Reserved.</p>
+        </div>
+    </footer>
     
-    <div class="fc-ultra-container" onclick="openCartModal()"><div class="fc-ultra"><div class="fc-ultra-ring"></div><span class="fc-ultra-icon">🛒</span><div class="fc-ultra-badge">0</div></div></div>
-    <div id="cart-modal" class="hidden fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center p-5 backdrop-blur-sm"><div class="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-fadeIn relative text-gray-800"><h2 class="text-2xl font-bold mb-4 border-b pb-2">Keranjang</h2><div id="cart-modal-body" class="max-h-[50vh] overflow-y-auto mb-4 pr-2 custom-scrollbar"></div><div class="flex justify-between items-center text-lg font-bold mb-6"><span>Total:</span><span id="cart-total-display" class="text-blue-600">Rp 0</span></div><div class="flex gap-3"><button onclick="closeCartModal()" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-600 font-semibold hover:bg-gray-50 transition">Tutup</button></div></div></div>
+    <div class="fc-ultra-container" onclick="toggleCart()">
+        <div class="fc-ultra">
+            <div class="fc-ultra-ring"></div>
+            <span class="fc-ultra-icon"><i class="ph-fill ph-shopping-cart"></i></span>
+            <div class="fc-ultra-badge">0</div>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="hidden fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-fadeIn relative text-gray-800">
+            <h2 class="text-2xl font-bold mb-4 border-b pb-2">Keranjang Belanja</h2>
+            <div id="cart-modal-body" class="max-h-[50vh] overflow-y-auto mb-4 pr-2 custom-scrollbar"></div>
+            
+            <div class="flex justify-between items-center text-lg font-bold mb-6 bg-gray-50 p-3 rounded-lg">
+                <span>Total:</span>
+                <span id="cart-total-display" class="text-blue-600">Rp 0</span>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="closeCartModal()" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-600 font-semibold hover:bg-gray-100 transition">
+                    Tutup
+                </button>
+                <button class="flex-1 py-3 bg-gray-300 text-gray-500 rounded-lg font-bold cursor-not-allowed" disabled>
+                    Anda sedang di sini
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }</script>
     <script src="js/db.js"></script>
     <script src="js/script.js"></script>
   </body>
   </html>
-  
