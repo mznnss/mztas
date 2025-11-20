@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>MZ Collection — Luxury Bags</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="css/style.css" />
-  </head>
+</head>
 
-  <body class="antialiased text-white">
+<body class="antialiased text-white bg-black flex flex-col min-h-screen">
     
     <header class="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-md">
       <div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <i class="ph ph-shopping-bag text-3xl text-yellow-500"></i>
+          <i class="ph-fill ph-shopping-bag text-3xl text-yellow-500"></i>
           <a href="index.html" class="font-bold text-2xl tracking-wide text-white">MZ <span class="text-yellow-500">LUXURY</span></a>
         </div>
 
@@ -38,10 +38,10 @@
       </nav>
     </header>
 
-    <section class="relative py-24 text-center px-5">
+    <section class="relative py-24 text-center px-5 flex-grow">
       <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500 blur-[120px] opacity-40 -z-10"></div>
       <h1 class="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">Elevate Your Style <br><span class="text-yellow-500">With Premium Quality</span></h1>
-      <p class="max-w-2xl mx-auto text-lg text-gray-300 mb-8">Koleksi tas eksklusif dengan desain modern dan material terbaik.</p>
+      <p class="max-w-2xl mx-auto text-lg text-gray-300 mb-8">Koleksi tas eksklusif dengan desain modern dan material terbaik untuk gaya hidup Anda.</p>
       <div class="flex justify-center gap-4">
         <a href="katalog.html" class="bg-yellow-600 text-black px-8 py-3 rounded-full font-bold hover:bg-yellow-500 transition shadow-[0_0_20px_rgba(212,175,55,0.4)]">Belanja Sekarang</a>
       </div>
@@ -55,7 +55,7 @@
             <div class="text-sm text-gray-400 uppercase">Terjual</div>
         </div>
         <div class="bg-white/5 border border-white/10 backdrop-blur-sm p-6 rounded-2xl text-center">
-            <i class="ph ph-star text-4xl text-yellow-500 mb-2"></i>
+            <i class="ph-fill ph-star text-4xl text-yellow-500 mb-2"></i>
             <div class="text-3xl font-bold text-white">4.9</div>
             <div class="text-sm text-gray-400 uppercase">Rating</div>
         </div>
@@ -70,52 +70,116 @@
     <section class="max-w-7xl mx-auto px-5 py-10">
       <div class="flex justify-between items-end mb-8">
           <div>
-            <h2 class="text-3xl font-bold text-white">Produk Terlaris</h2>
+            <h2 class="text-3xl font-bold text-white">Produk Favorit</h2>
             <div class="h-1 w-20 bg-yellow-500 rounded-full mt-2"></div>
           </div>
-          <a href="katalog.html" class="hidden md:block text-yellow-400 hover:text-white transition text-sm font-bold">Lihat Semua Produk &rarr;</a>
+          <a href="katalog.html" class="hidden md:block text-yellow-400 hover:text-white transition text-sm font-bold">Lihat Semua &rarr;</a>
       </div>
 
-      <div id="featured-container" class="products-grid">
+      <div id="featured-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
         </div>
 
       <div class="mt-8 text-center md:hidden">
-         <a href="katalog.html" class="inline-block border border-yellow-500 text-yellow-400 px-6 py-2 rounded-full hover:bg-yellow-500 hover:text-black transition">Lihat Katalog Lengkap</a>
+         <a href="katalog.html" class="inline-block border border-yellow-500 text-yellow-400 px-6 py-2 rounded-full hover:bg-yellow-500 hover:text-black transition">Lihat Katalog</a>
       </div>
     </section>
 
-    <section class="max-w-7xl mx-auto px-5 py-16 border-t border-white/10">
-       <div class="text-center mb-10">
-           <h3 class="text-2xl font-bold">Apa Kata Mereka?</h3>
-           <p class="text-gray-400">Ulasan asli dari pelanggan setia MZ Collection</p>
-       </div>
-       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <div class="bg-white/5 p-6 rounded-xl border border-white/10">
-               <div class="flex text-yellow-400 mb-2"><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i></div>
-               <p class="text-gray-300 italic">"Kualitasnya jauh di atas harganya. Suka banget sama packagingnya yang aman dan mewah."</p>
-               <div class="mt-4 font-bold text-sm text-white">— Andi Pratama</div>
+    <section class="max-w-6xl mx-auto px-5 py-16 border-t border-white/10">
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+           
+           <div>
+               <h3 class="text-2xl font-bold mb-2 text-white">Ulasan Pelanggan</h3>
+               <p class="text-gray-400 mb-6 text-sm">Apa kata mereka tentang produk kami?</p>
+               <div id="review-list" class="max-h-96 overflow-y-auto pr-2 space-y-4 custom-scrollbar">
+                   <p class="text-gray-500 italic">Memuat ulasan...</p>
+               </div>
            </div>
-           <div class="bg-white/5 p-6 rounded-xl border border-white/10">
-               <div class="flex text-yellow-400 mb-2"><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i></div>
-               <p class="text-gray-300 italic">"Admin fast respon, pengiriman cepet banget. Tasnya pas buat ngampus."</p>
-               <div class="mt-4 font-bold text-sm text-white">— Siti Aminah</div>
+
+           <div class="bg-white/5 p-8 rounded-2xl border border-white/10 h-fit">
+                <h3 class="text-xl font-bold mb-4 text-yellow-500">Tulis Ulasan Anda</h3>
+                <form id="form-review" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Nama Lengkap</label>
+                        <input id="ulasan-nama" required type="text" placeholder="Contoh: Budi Santoso" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white focus:border-yellow-500 outline-none transition">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Rating</label>
+                        <select id="ulasan-rating" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white focus:border-yellow-500 outline-none">
+                            <option value="5">★★★★★ (Sempurna)</option>
+                            <option value="4">★★★★☆ (Bagus)</option>
+                            <option value="3">★★★☆☆ (Cukup)</option>
+                            <option value="2">★★☆☆☆ (Kurang)</option>
+                            <option value="1">★☆☆☆☆ (Buruk)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Pengalaman Belanja</label>
+                        <textarea id="ulasan-text" required rows="3" placeholder="Ceritakan kepuasan Anda..." class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white focus:border-yellow-500 outline-none transition"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-bold py-3 rounded-lg hover:opacity-90 transition shadow-lg">
+                        Kirim Ulasan
+                    </button>
+                </form>
            </div>
        </div>
     </section>
 
-    <footer class="bg-black/40 border-t border-white/10 text-white py-8 mt-10 backdrop-blur-lg">
+    <footer class="bg-black/40 border-t border-white/10 text-white py-8 mt-auto backdrop-blur-lg">
       <div class="max-w-7xl mx-auto text-center">
         <h3 class="text-xl font-bold tracking-widest text-yellow-500">MZ COLLECTION</h3>
-        <p class="text-gray-500 text-sm mt-2">© 2025 All Rights Reserved.</p>
+        <div class="flex justify-center gap-4 my-4 text-2xl text-gray-400">
+            <i class="ph-fill ph-instagram-logo hover:text-white cursor-pointer"></i>
+            <i class="ph-fill ph-whatsapp-logo hover:text-white cursor-pointer"></i>
+            <i class="ph-fill ph-tiktok-logo hover:text-white cursor-pointer"></i>
+        </div>
+        <p class="text-gray-500 text-sm">© 2025 All Rights Reserved.</p>
       </div>
     </footer>
 
-    <div class="fc-ultra-container" onclick="toggleCart()"><div class="fc-ultra"><div class="fc-ultra-ring"></div><span class="fc-ultra-icon">🛒</span><div class="fc-ultra-badge">0</div></div></div>
-    <div id="product-modal" class="hidden fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center p-5 backdrop-blur-sm"><div class="bg-white w-full max-w-2xl rounded-2xl p-2 overflow-hidden relative shadow-2xl animate-fadeIn"><button onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 z-10"><i class="ph-bold ph-x text-2xl"></i></button><div id="product-detail-body" class="p-4 max-h-[85vh] overflow-y-auto"></div></div></div>
-    <div id="cart-modal" class="hidden fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center p-5 backdrop-blur-sm"><div class="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-fadeIn relative"><h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Keranjang</h2><div id="cart-modal-body" class="max-h-[50vh] overflow-y-auto mb-4 pr-2 custom-scrollbar"></div><div class="flex justify-between items-center text-lg font-bold text-gray-800 mb-6"><span>Total:</span><span id="cart-total-display" class="text-blue-600">Rp 0</span></div><div class="flex gap-3"><button onclick="closeCartModal()" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-600 font-semibold hover:bg-gray-50 transition">Tutup</button><button onclick="processCheckout()" class="flex-1 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 shadow-lg flex items-center justify-center gap-2 transition"><i class="ph-bold ph-whatsapp-logo text-xl"></i> Checkout WA</button></div></div></div>
+    <div class="fc-ultra-container" onclick="toggleCart()">
+        <div class="fc-ultra">
+            <div class="fc-ultra-ring"></div>
+            <span class="fc-ultra-icon"><i class="ph-fill ph-shopping-cart"></i></span>
+            <div class="fc-ultra-badge">0</div>
+        </div>
+    </div>
+
+    <div id="product-modal" class="hidden fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-5 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-3xl rounded-2xl p-2 overflow-hidden relative shadow-2xl animate-fadeIn">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 z-10 bg-white rounded-full p-1 shadow">
+                <i class="ph-bold ph-x text-2xl"></i>
+            </button>
+            <div id="product-detail-body" class="p-6 max-h-[85vh] overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="hidden fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-5 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-fadeIn relative">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Keranjang Belanja</h2>
+            <div id="cart-modal-body" class="max-h-[50vh] overflow-y-auto mb-4 pr-2 custom-scrollbar"></div>
+            
+            <div class="flex justify-between items-center text-lg font-bold text-gray-800 mb-6 bg-gray-50 p-3 rounded-lg">
+                <span>Total:</span>
+                <span id="cart-total-display" class="text-blue-600">Rp 0</span>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="closeCartModal()" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-600 font-semibold hover:bg-gray-100 transition">
+                    Tutup
+                </button>
+                <button onclick="processCheckoutRedirect()" class="flex-1 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg transition">
+                    Lanjut Bayar &rarr;
+                </button>
+            </div>
+        </div>
+    </div>
     
     <script>function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }</script>
     <script src="js/db.js"></script>
     <script src="js/script.js"></script>
   </body>
-</html>
+  </html>
+  
