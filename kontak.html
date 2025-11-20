@@ -3,247 +3,68 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>MZ Collection — Hubungi Kami</title>
-
+    <title>MZ Collection — Kontak</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="css/style.css" />
   </head>
-  
   <body class="antialiased text-white">
     
     <header class="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-md">
       <div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <i class="ph ph-shopping-bag text-3xl text-yellow-500"></i>
-          <a href="index.html" class="font-bold text-2xl tracking-wide text-white"
-            >MZ <span class="text-yellow-500">LUXURY</span></a
-          >
+          <a href="index.html" class="font-bold text-2xl tracking-wide text-white">MZ <span class="text-yellow-500">LUXURY</span></a>
         </div>
-
-        <nav class="hidden md:flex gap-6 items-center text-sm font-medium tracking-wider">
+        <nav class="hidden md:flex gap-8 items-center text-sm font-bold tracking-wider">
           <a href="index.html" class="hover:text-yellow-400 transition">BERANDA</a>
-          <a href="katalog.html" class="hover:text-yellow-400 transition">KOLEKSI</a>
-          <a href="kontak.html" class="text-yellow-400 transition font-bold border-b-2 border-yellow-500 pb-1">KONTAK</a>
+          <a href="katalog.html" class="hover:text-yellow-400 transition">KATALOG</a>
+          <a href="kontak.html" class="text-yellow-400 border-b-2 border-yellow-500 pb-1">KONTAK</a>
+          <a href="pemesanan.html" class="hover:text-yellow-400 transition">CEK PESANAN</a>
         </nav>
-
-        <button class="md:hidden text-white" onclick="toggleMenu()">
-          <i id="menu-icon" class="ph ph-list text-3xl"></i>
-        </button>
+        <button class="md:hidden text-white" onclick="toggleMenu()"><i id="menu-icon" class="ph ph-list text-3xl"></i></button>
       </div>
-
-      <nav id="mobile-menu" class="hidden md:hidden bg-black/90 border-t border-white/10 pb-4 absolute w-full">
+      <nav id="mobile-menu" class="hidden md:hidden bg-black/95 border-t border-white/10 pb-4 absolute w-full z-50">
         <a href="index.html" class="block py-3 text-center text-white hover:text-yellow-400">Beranda</a>
-        <a href="katalog.html" class="block py-3 text-center text-white hover:text-yellow-400">Koleksi</a>
+        <a href="katalog.html" class="block py-3 text-center text-white hover:text-yellow-400">Katalog</a>
         <a href="kontak.html" class="block py-3 text-center text-yellow-400 font-bold">Kontak</a>
+        <a href="pemesanan.html" class="block py-3 text-center text-white hover:text-yellow-400">Cek Pesanan</a>
       </nav>
     </header>
 
     <main class="max-w-6xl mx-auto px-5 py-12 min-h-screen">
-      
       <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold mb-3">Layanan Pelanggan</h1>
-        <p class="text-gray-300">Kami siap membantu kebutuhan fashion Anda 24/7.</p>
+        <h1 class="text-4xl font-bold mb-3">Hubungi Kami</h1>
+        <p class="text-gray-300">Kami siap membantu Anda 24/7.</p>
       </div>
-
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        
-        <div class="bg-white/5 border border-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-2xl h-full flex flex-col justify-between">
-          <div>
-              <h2 class="text-2xl font-bold mb-6 text-yellow-500">Informasi Kontak</h2>
-              <p class="text-sm leading-relaxed mb-8 text-gray-300">
-                Punya pertanyaan tentang produk, ukuran, atau pengiriman? Jangan ragu untuk menghubungi tim support kami.
-              </p>
-
-              <ul class="space-y-6 text-sm">
-                <li class="flex items-center gap-4 group cursor-pointer">
-                  <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-black transition duration-300">
-                      <i class="ph-fill ph-whatsapp-logo text-2xl"></i>
-                  </div>
-                  <div>
-                    <div class="font-bold text-lg tracking-wide">0897-6272-428</div>
-                    <span class="text-xs text-gray-400">WhatsApp Official</span>
-                  </div>
-                </li>
-
-                <li class="flex items-center gap-4 group cursor-pointer">
-                  <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-black transition duration-300">
-                      <i class="ph-fill ph-envelope-simple text-2xl"></i>
-                  </div>
-                  <div>
-                    <div class="font-bold text-lg tracking-wide">mizanzulmi1515@gmail.com</div>
-                    <span class="text-xs text-gray-400">Email Support</span>
-                  </div>
-                </li>
-
-                <li class="flex items-center gap-4 group cursor-pointer">
-                  <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-black transition duration-300">
-                      <i class="ph-fill ph-instagram-logo text-2xl"></i>
-                  </div>
-                  <div>
-                    <div class="font-bold text-lg tracking-wide">@zanzulmi</div>
-                    <span class="text-xs text-gray-400">Instagram Gallery</span>
-                  </div>
-                </li>
-              </ul>
-          </div>
-
-          <div class="mt-8 rounded-xl overflow-hidden border border-white/10 h-48">
-             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.544392589488!2d106.690023!3d-6.323405!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e5a6e26dc3cd%3A0xccd6344b8021119d!2sUniversitas%20Pamulang%20Kampus%202%20(UNPAM%20Viktor)!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
-              width="100%"
-              height="100%"
-              style="border: 0;"
-              allowfullscreen=""
-              loading="lazy"
-              class="grayscale invert contrast-125"
-            ></iframe>
-          </div>
-        </div>
-
         <div class="bg-white/5 border border-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-2xl">
-          <h2 class="text-2xl font-bold mb-6 text-white">Kirim Pesan</h2>
-
+            <h2 class="text-2xl font-bold mb-6 text-yellow-500">Informasi</h2>
+            <ul class="space-y-6 text-sm">
+              <li class="flex items-center gap-4"><i class="ph-fill ph-whatsapp-logo text-2xl text-green-400"></i><div><div class="font-bold text-lg">0897-6272-428</div><span class="text-xs text-gray-400">WhatsApp</span></div></li>
+              <li class="flex items-center gap-4"><i class="ph-fill ph-envelope-simple text-2xl text-blue-400"></i><div><div class="font-bold text-lg">mizanzulmi1515@gmail.com</div><span class="text-xs text-gray-400">Email</span></div></li>
+              <li class="flex items-center gap-4"><i class="ph-fill ph-map-pin text-2xl text-red-400"></i><div><div class="font-bold text-lg">Tangerang Selatan</div><span class="text-xs text-gray-400">Indonesia</span></div></li>
+            </ul>
+        </div>
+        <div class="bg-white/5 border border-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-2xl">
+          <h2 class="text-2xl font-bold mb-6">Kirim Pesan</h2>
           <form id="contact-form" class="space-y-5">
-            <div>
-              <label for="name" class="text-sm font-bold text-gray-400">Nama Lengkap</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                placeholder="Nama Anda"
-                class="mt-2 w-full p-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition"
-              />
-            </div>
-
-            <div>
-              <label for="email" class="text-sm font-bold text-gray-400">Alamat Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                placeholder="email@anda.com"
-                class="mt-2 w-full p-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition"
-              />
-            </div>
-
-            <div>
-              <label for="message" class="text-sm font-bold text-gray-400">Pesan Anda</label>
-              <textarea
-                id="message"
-                name="message"
-                rows="5"
-                required
-                placeholder="Tulis pesan disini..."
-                class="mt-2 w-full p-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition resize-none"
-              ></textarea>
-            </div>
-
-            <div class="pt-2">
-               <button
-                type="submit"
-                class="w-full bg-yellow-600 text-black px-6 py-3 rounded-lg font-bold hover:bg-yellow-500 transform hover:-translate-y-1 transition duration-300 shadow-lg shadow-yellow-500/20"
-              >
-                Kirim Pesan
-              </button>
-            </div>
-            
-            <div id="contact-feedback" class="text-center text-sm font-bold mt-4 min-h-[20px]"></div>
+            <input name="name" type="text" required placeholder="Nama" class="w-full p-3 bg-black/30 border border-white/20 rounded-lg text-white focus:border-yellow-500 outline-none"/>
+            <input name="email" type="email" required placeholder="Email" class="w-full p-3 bg-black/30 border border-white/20 rounded-lg text-white focus:border-yellow-500 outline-none"/>
+            <textarea name="message" rows="4" required placeholder="Pesan..." class="w-full p-3 bg-black/30 border border-white/20 rounded-lg text-white focus:border-yellow-500 outline-none"></textarea>
+            <button type="submit" class="w-full bg-yellow-600 text-black px-6 py-3 rounded-lg font-bold hover:bg-yellow-500">Kirim</button>
           </form>
         </div>
       </div>
     </main>
 
-    <footer class="bg-black/40 border-t border-white/10 text-white py-8 mt-10 backdrop-blur-lg">
-        <div class="max-w-7xl mx-auto text-center">
-          <h3 class="text-xl font-bold tracking-widest text-yellow-500">MZ COLLECTION</h3>
-          <p class="text-gray-500 text-sm mt-2">© 2025 All Rights Reserved.</p>
-        </div>
-    </footer>
+    <footer class="bg-black/40 border-t border-white/10 text-white py-8 mt-10 backdrop-blur-lg"><div class="max-w-7xl mx-auto text-center"><h3 class="text-xl font-bold tracking-widest text-yellow-500">MZ COLLECTION</h3><p class="text-gray-500 text-sm mt-2">© 2025 All Rights Reserved.</p></div></footer>
+    
+    <div class="fc-ultra-container" onclick="toggleCart()"><div class="fc-ultra"><div class="fc-ultra-ring"></div><span class="fc-ultra-icon">🛒</span><div class="fc-ultra-badge">0</div></div></div>
+    <div id="cart-modal" class="hidden fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center p-5 backdrop-blur-sm"><div class="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-fadeIn relative"><h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Keranjang</h2><div id="cart-modal-body" class="max-h-[50vh] overflow-y-auto mb-4 pr-2 custom-scrollbar"></div><div class="flex justify-between items-center text-lg font-bold text-gray-800 mb-6"><span>Total:</span><span id="cart-total-display" class="text-blue-600">Rp 0</span></div><div class="flex gap-3"><button onclick="closeCartModal()" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-600 font-semibold hover:bg-gray-50 transition">Tutup</button><button onclick="processCheckout()" class="flex-1 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 shadow-lg flex items-center justify-center gap-2 transition"><i class="ph-bold ph-whatsapp-logo text-xl"></i> Checkout WA</button></div></div></div>
 
-    <div class="fc-ultra-container" onclick="toggleCart()">
-        <div class="fc-ultra">
-            <div class="fc-ultra-ring"></div>
-            <span class="fc-ultra-icon">🛒</span>
-            <div class="fc-ultra-badge">0</div>
-        </div>
-    </div>
-
-    <div id="cart-modal" class="hidden fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center p-5 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-fadeIn relative">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Keranjang Belanja</h2>
-            
-            <div id="cart-modal-body" class="max-h-[50vh] overflow-y-auto mb-4 pr-2 custom-scrollbar">
-                </div>
-
-            <div class="flex justify-between items-center text-lg font-bold text-gray-800 mb-6">
-                <span>Total:</span>
-                <span id="cart-total-display" class="text-blue-600">Rp 0</span>
-            </div>
-
-            <div class="flex gap-3">
-                <button onclick="closeCartModal()" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-600 font-semibold hover:bg-gray-50 transition">Tutup</button>
-                <button onclick="processCheckout()" class="flex-1 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 shadow-lg flex items-center justify-center gap-2 transition">
-                    <i class="ph-bold ph-whatsapp-logo text-xl"></i> Checkout WA
-                </button>
-            </div>
-        </div>
-    </div>
-    <div id="product-modal" class="hidden fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center p-5 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-2xl rounded-2xl p-2 overflow-hidden relative shadow-2xl animate-fadeIn">
-            <div id="product-detail-body" class="p-4"></div>
-        </div>
-    </div>
-
-
+    <script>function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }</script>
     <script src="js/db.js"></script>
     <script src="js/script.js"></script>
-
-    <script>
-      function toggleMenu() {
-        const menu = document.getElementById('mobile-menu');
-        menu.classList.toggle('hidden');
-      }
-    </script>
-
-    <script>
-      const contactForm = document.getElementById("contact-form");
-      const feedback = document.getElementById("contact-feedback");
-
-      contactForm.addEventListener("submit", async (e) => {
-        e.preventDefault(); 
-        
-        feedback.textContent = "Sedang mengirim...";
-        feedback.className = "text-center text-sm font-bold mt-4 text-yellow-400";
-
-        const formData = new FormData(contactForm);
-
-        try {
-          const response = await fetch("https://formspree.io/f/mldpdqog", {
-            method: "POST",
-            body: formData,
-            headers: { 'Accept': 'application/json' }
-          });
-
-          if (response.ok) {
-            feedback.textContent = "Terima kasih! Pesan Anda berhasil dikirim.";
-            feedback.className = "text-center text-sm font-bold mt-4 text-green-400";
-            contactForm.reset();
-          } else {
-            const data = await response.json();
-            feedback.textContent = "Oops! Ada masalah saat mengirim pesan.";
-            feedback.className = "text-center text-sm font-bold mt-4 text-red-400";
-          }
-        } catch (error) {
-          feedback.textContent = "Gagal terhubung. Periksa koneksi internet Anda.";
-          feedback.className = "text-center text-sm font-bold mt-4 text-red-400";
-        }
-
-        setTimeout(() => { feedback.textContent = ""; }, 5000);
-      });
-    </script>
   </body>
-        </html>
-      
+</html>
