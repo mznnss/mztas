@@ -1,116 +1,247 @@
-/* ------------------------------------------
-     ULTRA PREMIUM FLOATING CART (BLUE ELEGANT)
-------------------------------------------- */
+/* ==========================================================================
+   1. GLOBAL THEME: LUXURY BLUE GRADIENT
+   ========================================================================== */
+:root {
+    --blue-deep: #051937;
+    --blue-mid: #004d7a;
+    --blue-light: #008793;
+    --gold-accent: #D4AF37; /* Warna Emas untuk kesan Premium */
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Latar belakang Gradasi Biru Mewah */
+    background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid));
+    color: white;
+    min-height: 100vh;
+    padding-bottom: 100px; /* Memberi ruang agar konten terbawah tidak tertutup tombol keranjang */
+}
+
+/* ==========================================================================
+   2. ULTRA PREMIUM FLOATING CART (FIXED POSITION)
+   Solusi agar keranjang muncul di HP & Desktop
+   ========================================================================== */
+.fc-ultra-container {
+    /* Container pembungkus agar bisa diposisikan Fixed di layar */
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999; /* Pastikan selalu di atas elemen lain */
+    cursor: pointer;
+}
 
 .fc-ultra {
-  width: 72px;
-  height: 72px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-
-  border-radius: 50%;
-  border: 1.4px solid rgba(255, 255, 255, 0.35);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  bottom: 25px;
-  right: 22px;
-  z-index: 999;
-
-  /* Blue Elegant Glow */
-  box-shadow:
-    0 0 25px rgba(0, 140, 255, 0.65),
-    0 0 35px rgba(0, 200, 255, 0.4),
-    inset 0 0 18px rgba(255, 255, 255, 0.25);
-
-  animation: floatUltra 4s ease-in-out infinite;
-
-  transition: transform .3s ease, box-shadow .35s ease;
-  cursor: pointer;
+    width: 70px; 
+    height: 70px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px);
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    
+    /* Blue Elegant Glow (Sesuai kodemu) */
+    box-shadow: 0 0 25px rgba(0, 125, 255, 0.7), 
+                0 0 35px rgba(0, 195, 255, 0.5), 
+                inset 0 0 20px rgba(255, 255, 255, 0.25);
+    
+    animation: floatUltra 4s cubic-bezier(.42,0,.58,1) infinite;
+    transition: transform .3s ease, box-shadow .3s ease;
 }
 
-/* Hover effect */
+/* Efek Hover: Membesar sedikit */
 .fc-ultra:hover {
-  transform: translateY(-6px) scale(1.1);
-  box-shadow:
-    0 0 45px rgba(0, 165, 255, 1),
-    0 0 70px rgba(0, 240, 255, 1),
-    inset 0 0 30px rgba(255, 255, 255, 0.55);
+    transform: rotateX(15deg) rotateY(15deg) scale(1.15);
+    box-shadow: 0 0 40px rgba(0, 155, 255, 1), 
+                0 0 60px rgba(0, 220, 255, 1), 
+                inset 0 0 30px rgba(255, 255, 255, 0.5);
 }
 
-/* Icon */
 .fc-ultra-icon {
-  font-size: 33px;
-  color: white;
-  filter: drop-shadow(0 0 10px rgba(0, 190, 255, 0.9));
-  pointer-events: none;
+    font-size: 30px;
+    color: white;
+    filter: drop-shadow(0 0 10px rgba(0, 180, 255, 0.9));
 }
 
-/* Badge (jumlah item) */
+/* Badge Notifikasi (Angka Merah) */
 .fc-ultra-badge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-
-  background: linear-gradient(135deg, #ff1b1b, #ff006a);
-  padding: 5px 9px;
-  font-size: 12.5px;
-  border-radius: 999px;
-  color: white;
-  font-weight: bold;
-
-  box-shadow: 0 0 12px rgba(255, 0, 70, 0.6);
-}
-
-/* Holo Ring */
-.fc-ultra-ring {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  top: 0;
-  left: 0;
-  animation: holoBlue 3s linear infinite;
-  border: 4px solid transparent;
-
-  /* Blue Gradient */
-  border-top-color: #1ea8ff;
-  border-right-color: #006aff;
-  border-bottom-color: #00eaff;
-  border-left-color: #0084ff;
-}
-
-/* Floating Animation */
-@keyframes floatUltra {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
-  100% { transform: translateY(0); }
-}
-
-/* Hologram Rotation */
-@keyframes holoBlue {
-  0%   { transform: rotate(0deg);   filter: blur(3px); }
-  100% { transform: rotate(360deg); filter: blur(3px); }
-}
-
-/* RESPONSIVE — Mobile fix */
-@media (max-width: 480px) {
-  .fc-ultra {
-    width: 60px;
-    height: 60px;
-    bottom: 15px;
-    right: 15px;
-  }
-
-  .fc-ultra-icon {
-    font-size: 27px;
-  }
-
-  .fc-ultra-badge {
-    font-size: 11px;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #ff1b1b, #ff004e);
     padding: 4px 8px;
-  }
+    font-size: 12px;
+    border-radius: 50px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(255, 0, 70, 0.7);
+    border: 2px solid white;
 }
+
+/* Cincin Animasi (Hologram Ring) */
+.fc-ultra-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+    animation: holoBlue 2.5s linear infinite;
+    border: 4px solid transparent;
+    /* Blue Elegant Gradient */
+    border-top-color: #1ea8ff;
+    border-right-color: #006aff;
+    border-bottom-color: #00eaff;
+    border-left-color: #0084ff;
+    pointer-events: none; /* Agar tidak mengganggu klik */
+}
+
+/* ==========================================================================
+   3. MODERN FILTER CATEGORY (Glassmorphism)
+   ========================================================================== */
+.filter-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 30px 20px;
+}
+
+.filter-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 10px 25px;
+    border-radius: 30px; /* Bentuk kapsul modern */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(5px);
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background: var(--gold-accent); /* Warna Emas saat aktif */
+    color: #000; /* Teks hitam agar kontras dengan emas */
+    border-color: var(--gold-accent);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+    transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   4. PRODUCT CARDS & GRID (Layout Tas)
+   ========================================================================== */
+.products-grid {
+    display: grid;
+    /* Auto Responsive: Menyesuaikan jumlah kolom berdasarkan lebar layar */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+    gap: 25px;
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.product-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 15px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.product-image {
+    width: 100%;
+    height: 220px;
+    border-radius: 15px;
+    object-fit: cover;
+    margin-bottom: 15px;
+    background-color: #0f2027; /* Placeholder jika gambar belum load */
+}
+
+.product-title {
+    font-size: 1.1rem;
+    margin: 10px 0 5px;
+    font-weight: 600;
+}
+
+.product-category {
+    font-size: 0.85rem;
+    color: #ccc;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Styling Harga & Diskon */
+.price-wrapper {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.price-original {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.price-final {
+    color: var(--gold-accent);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.discount-tag {
+    background: #ff4757;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   5. ANIMASI BAWAAN
+   ========================================================================== */
+@keyframes floatUltra {
+    0% { transform: translateY(0) rotate(0); }
+    50% { transform: translateY(-10px) rotate(2deg); } 
+    100% { transform: translateY(0) rotate(0); }
+}
+
+@keyframes holoBlue {
+    0% { transform: rotate(0deg); filter: blur(2px); }
+    100% { transform: rotate(360deg); filter: blur(2px); }
+}
+
+/* ==========================================================================
+   6. MOBILE TWEAKS
+   ========================================================================== */
+@media (max-width: 768px) {
+    .fc-ultra {
+        width: 60px;
+        height: 60px; /* Sedikit lebih kecil di HP supaya tidak menutupi konten */
+    }
+    .fc-ultra-container {
+        bottom: 20px;
+        right: 20px;
+    }
+    .filter-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+     }
